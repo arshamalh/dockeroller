@@ -14,10 +14,11 @@ type Telegram interface {
 type telegram struct {
 	docker contracts.Docker
 	isOn   bool
+	config *models.TelegramInfo
 }
 
-func New(docker contracts.Docker) Telegram {
-	return &telegram{docker, true}
+func New(docker contracts.Docker) *telegram {
+	return &telegram{docker, false, nil}
 }
 
 func (t *telegram) Start() {}
@@ -26,5 +27,11 @@ func (t telegram) Info() models.ServiceInfo {
 	return models.ServiceInfo{
 		Name: "telegram",
 		IsOn: t.isOn,
+	}
+}
+
+func (t *telegram) SetConfig(config *models.TelegramInfo) {
+	if config != nil {
+		t.config = config
 	}
 }
