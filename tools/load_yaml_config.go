@@ -1,11 +1,11 @@
 package tools
 
 import (
-	"github.com/arshamalh/dockeroller/models"
+	"github.com/arshamalh/dockeroller/contracts"
 )
 
 type Configs struct {
-	Telegram *models.TelegramInfo
+	TelegramInfo *contracts.Config
 }
 
 // Search for a dockeroller.yml file that includs needed configurations and load it.

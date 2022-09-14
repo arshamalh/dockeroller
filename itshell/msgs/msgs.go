@@ -1,5 +1,7 @@
 package msgs
 
+import "strings"
+
 const (
 	Welcome string = `
 Welcome to Dockeroller!
@@ -18,11 +20,9 @@ It's an open-source project that you can check, make sure and build it yourself.
 As long as I know, this project is safe, but use it on your own risk.
 This shell should remain open as long as you want this app to be working.
 `
-	// TODO: Gates can't be a constant, it should be a variable.
-	Gates = `
-Here are the avaiable gates:
-1 - Telegram
-2 - API     
+	gates = `Here are the avaiable gates:
+1 - Telegram {1}
+2 - API      {2}
 You can turn them on by entering their number. (or 0 for main menu)
 `
 
@@ -37,3 +37,19 @@ By the way, we're working on password mechanism.
 You should activate API by defining a superadmin password and a port
 `
 )
+
+func Gates(telegram bool, api bool) string {
+	return strings.NewReplacer(
+		"{1}", status(telegram),
+		"{2}", status(api),
+	).Replace(gates)
+}
+
+func status(is_on bool) (status string) {
+	if is_on {
+		status = "on"
+	} else {
+		status = "off"
+	}
+	return
+}

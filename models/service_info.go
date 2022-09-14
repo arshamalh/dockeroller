@@ -6,5 +6,6 @@ type ServiceInfo struct {
 }
 
 type TelegramInfo struct {
-	Token string
+	Token    string
+	Username string
 }

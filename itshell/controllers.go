@@ -17,34 +17,30 @@ func StageHelp() int {
 	return getStage()
 }
 
-func StageGates() int {
-	fmt.Print(msgs.Gates)
+func StageGates(telegram bool, api bool) int {
+	fmt.Print(msgs.Gates(telegram, api))
 	if stage := getStage(); stage != 0 {
 		return stage + 10
 	}
 	return 0
 }
 
-func StageTelegram() int {
+func StageTelegram() (stage int, token string, username string) {
 	fmt.Print(msgs.Telegram)
-	var token string
 	getInput("Token: ", &token)
-	var username string
 	getInput("Username: @", &username)
 	fmt.Println("Username and token successfully sat!")
 	time.Sleep(time.Second * 3)
-	return 0
+	return
 }
 
-func StageAPI() int {
+func StageAPI() (stage int, port int, password string) {
 	fmt.Print(msgs.API)
-	var port int
 	getInput("Port: ", &port)
-	var password string
 	getInput("Password: ", &password)
 	fmt.Println("Port and password successfully sat!")
 	time.Sleep(time.Second * 3)
-	return 0
+	return
 }
 
 func getStage() (stage int) {
