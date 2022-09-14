@@ -31,8 +31,21 @@ func startServices(services ...contracts.Service) {
 	}
 }
 
+// It will start a blocking shell session for controlling the gates and configs.
 func runInteractiveShell() {
+	var stage int = 0
 	for {
-		// prints.SayWelcome()
+		switch stage {
+		case 0:
+			stage = StageWelcome()
+		case 1:
+			stage = StageHelp()
+		case 2:
+			stage = StageGates()
+		case 11:
+			stage = StageTelegram()
+		case 12:
+			stage = StageAPI()
+		}
 	}
 }
