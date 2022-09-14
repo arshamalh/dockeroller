@@ -1,24 +1,16 @@
 package itshell
 
-import (
-	"github.com/arshamalh/dockeroller/models"
-)
+import "github.com/arshamalh/dockeroller/contracts"
 
 type ItShell interface {
 	Run()
 }
 
-type Service interface {
-	Start()
-	Stop()
-	Info() models.ServiceInfo
-}
-
 type itShell struct {
-	services []Service
+	services []contracts.Service
 }
 
-func New(services ...Service) ItShell {
+func New(services ...contracts.Service) ItShell {
 	return &itShell{
 		services: services,
 	}
@@ -31,7 +23,7 @@ func (s *itShell) Run() {
 }
 
 // Start services that are on by default.
-func startServices(services ...Service) {
+func startServices(services ...contracts.Service) {
 	for _, srv := range services {
 		if srv.Info().IsOn {
 			srv.Start()
