@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/arshamalh/dockeroller/repo/api"
-	"github.com/arshamalh/dockeroller/repo/docker"
-	"github.com/arshamalh/dockeroller/repo/itshell"
-	"github.com/arshamalh/dockeroller/repo/telegram"
+	"github.com/arshamalh/dockeroller/api"
+	"github.com/arshamalh/dockeroller/docker"
+	"github.com/arshamalh/dockeroller/itshell"
+	"github.com/arshamalh/dockeroller/telegram"
 )
 
 func main() {
