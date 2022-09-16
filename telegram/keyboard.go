@@ -6,7 +6,8 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func MakeContainerKeyboard(index int, is_on bool) (keyboard *tele.ReplyMarkup) {
+func MakeContainerKeyboard(index int, is_on bool) *tele.ReplyMarkup {
+	keyboard := &tele.ReplyMarkup{}
 	var start_stop tele.Btn
 	if is_on {
 		start_stop = keyboard.Data("Stop", "stop")
@@ -32,7 +33,8 @@ func MakeContainerKeyboard(index int, is_on bool) (keyboard *tele.ReplyMarkup) {
 	return keyboard
 }
 
-func MakeBackKeyboard(index int, is_on bool) (keyboard *tele.ReplyMarkup) {
+func MakeBackKeyboard(index int, is_on bool) *tele.ReplyMarkup {
+	keyboard := &tele.ReplyMarkup{}
 	var start_stop tele.Btn
 	if is_on {
 		start_stop = keyboard.Data("Stop", "stop")
