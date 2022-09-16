@@ -12,6 +12,11 @@ import (
 func FmtMono(input string) string {
 	return strings.NewReplacer(
 		"''", "`",
+		"(", "\\(", // ()_-. are reserved by telegram.
+		")", "\\)",
+		"_", "\\_",
+		".", "\\.",
+		"-", "\\-",
 	).Replace(input)
 }
 
