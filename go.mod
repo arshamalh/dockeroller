@@ -34,6 +34,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gin-gonic/gin v1.8.1
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/moby/moby v20.10.18+incompatible
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

@@ -1,7 +1,21 @@
 package docker
 
-import "github.com/arshamalh/dockeroller/contracts"
+import (
+	"fmt"
 
-func New() contracts.Docker {
-	return nil
+	"github.com/moby/moby/client"
+)
+
+func New() *docker {
+	cli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return &docker{
+		cli: cli,
+	}
+}
+
+type docker struct {
+	cli *client.Client
 }
