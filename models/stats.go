@@ -12,7 +12,7 @@ type Stats struct {
 			PerCPU []uint `json:"percpu_usage"`
 		} `json:"cpu_usage"`
 		SystemCPUUsage uint `json:"system_cpu_usage"`
-		OnlineCPUs     int
+		OnlineCPUs     int  `json:"online_cpus"`
 	} `json:"cpu_stats"`
 	Memory struct {
 		Usage    uint
