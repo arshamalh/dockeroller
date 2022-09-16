@@ -15,4 +15,4 @@ func (ss Services) Get(name string) Service {
 	return ss[name]
 }
 
-type Config map[string]interface{}
+type Config map[string]any

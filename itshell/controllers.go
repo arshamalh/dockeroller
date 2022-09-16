@@ -50,7 +50,7 @@ func getStage() (stage int) {
 }
 
 // Helper function to print a message and get a value (by populating a pointer)
-func getInput(print string, value interface{}) {
+func getInput(print string, value any) {
 	fmt.Print(print)
 	fmt.Scanln(value)
 }
