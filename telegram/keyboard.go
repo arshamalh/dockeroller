@@ -32,20 +32,19 @@ func MakeContainerKeyboard(index int, is_on bool) (keyboard *tele.ReplyMarkup) {
 	return keyboard
 }
 
-func MakeBackKeyboard(index int, is_on bool) *tele.ReplyMarkup {
-	containerKB := &tele.ReplyMarkup{}
+func MakeBackKeyboard(index int, is_on bool) (keyboard *tele.ReplyMarkup) {
 	var start_stop tele.Btn
 	if is_on {
-		start_stop = containerKB.Data("Stop", "stop")
+		start_stop = keyboard.Data("Stop", "stop")
 	} else {
-		start_stop = containerKB.Data("Start", "start")
+		start_stop = keyboard.Data("Start", "start")
 	}
-	containerKB.Inline(
+	keyboard.Inline(
 		tele.Row{
-			containerKB.Data("⬅", "back_containers", fmt.Sprint(index)),
+			keyboard.Data("⬅", "back_containers", fmt.Sprint(index)),
 			start_stop,
 		},
 	)
 
-	return containerKB
+	return keyboard
 }
