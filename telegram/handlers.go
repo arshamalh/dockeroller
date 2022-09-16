@@ -1,6 +1,8 @@
 package telegram
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -29,8 +31,8 @@ func RegisterHandlers(bot *tele.Bot, docker contracts.Docker) {
 	// Button handlers
 	bot.Handle("\fprev", PrevNextBtnHandler)
 	bot.Handle("\fnext", PrevNextBtnHandler)
-	bot.Handle("\fstats", StatsHandler)
-	bot.Handle("\flogs", LogsHandler)
+	bot.Handle("\fstats", StatsHandler(docker))
+	bot.Handle("\flogs", LogsHandler(docker))
 	bot.Handle("\fback_containers", BackContainersBtnHandler)
 }
 
@@ -98,32 +100,71 @@ func ImagesHandler(docker contracts.Docker) func(ctx tele.Context) error {
 	}
 }
 
-func LogsHandler(ctx tele.Context) error {
-	index, err := strconv.Atoi(ctx.Data())
-	if err != nil {
-		fmt.Println(err)
-	}
-	current := GetSession("conts").([]*models.Container)[index]
-	quit := make(chan struct{})
-	SetSession("quit_channel", quit)
-	for i := 0; i < 10; i++ {
-		select {
-		case <-quit:
-			return nil
-		default:
-			err := ctx.Edit(
-				current.Name+" log "+fmt.Sprint(i),
-				MakeBackKeyboard(index, true),
-			)
-			if err != nil {
-				fmt.Println(err)
-			}
-			time.Sleep(time.Second)
+func LogsHandler(docker contracts.Docker) func(ctx tele.Context) error {
+	return func(ctx tele.Context) error {
+		index, err := strconv.Atoi(ctx.Data())
+		if err != nil {
+			fmt.Println(err)
 		}
+		current := GetSession("conts").([]*models.Container)[index]
+		quit := make(chan struct{})
+		SetSession("quit_channel", quit)
+		for i := 0; i < 10; i++ {
+			select {
+			case <-quit:
+				return nil
+			default:
+				err := ctx.Edit(
+					current.Name+" log "+fmt.Sprint(i),
+					MakeBackKeyboard(index, true),
+				)
+				if err != nil {
+					fmt.Println(err)
+				}
+				time.Sleep(time.Second)
+			}
+		}
+		return ctx.Respond()
 	}
-	return ctx.Respond()
 }
 
-func StatsHandler(ctx tele.Context) error {
-	return ctx.Respond()
+func StatsHandler(docker contracts.Docker) func(ctx tele.Context) error {
+	return func(ctx tele.Context) error {
+		index, err := strconv.Atoi(ctx.Data())
+		if err != nil {
+			fmt.Println(err)
+		}
+		current := GetSession("conts").([]*models.Container)[index]
+		quit := make(chan struct{})
+		SetSession("quit_channel", quit)
+		stream, err := docker.ContainerStats(current.ID)
+		if err != nil {
+			fmt.Println(err)
+		}
+		streamer := bufio.NewScanner(stream)
+		latest_msg := ""
+		for streamer.Scan() {
+			select {
+			case <-quit:
+				return nil
+			default:
+				stats := models.Stats{}
+				json.Unmarshal(streamer.Bytes(), &stats)
+				msg := msgs.FmtStats(stats)
+				if msg != latest_msg {
+					err := ctx.Edit(
+						msg,
+						MakeBackKeyboard(index, true),
+						tele.ModeMarkdownV2,
+					)
+					if err != nil {
+						fmt.Println(err)
+					}
+					latest_msg = msg
+				}
+				time.Sleep(time.Second)
+			}
+		}
+		return ctx.Respond()
+	}
 }

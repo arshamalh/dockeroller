@@ -39,3 +39,13 @@ func FmtImage(image *models.Image) string {
 	response = FmtMono(response)
 	return response
 }
+
+func FmtStats(stat models.Stats) string {
+	response := strings.NewReplacer(
+		"{cpu_usage}", fmt.Sprint(stat.CPU.Usage.Total),
+		"{memory_usage}", fmt.Sprint(stat.Memory.Usage),
+		"{online_cpus}", fmt.Sprint(stat.CPU.OnlineCPUs),
+	).Replace(Stat)
+	response = FmtMono(response)
+	return response
+}
