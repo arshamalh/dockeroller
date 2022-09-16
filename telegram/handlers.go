@@ -37,7 +37,7 @@ func PrevNextBtnHandler(ctx tele.Context) error {
 	}
 	current := GetSession("conts").([]*models.Container)[index]
 	ctx.Edit(
-		msgs.FormatContainer(current),
+		msgs.FmtContainer(current),
 		MakeContainerKeyboard(index, false),
 		tele.ModeMarkdownV2,
 	)
@@ -52,7 +52,7 @@ func BackContainersBtnHandler(ctx tele.Context) error {
 	}
 	current := GetSession("conts").([]*models.Container)[index]
 	return ctx.Edit(
-		msgs.FormatContainer(current),
+		msgs.FmtContainer(current),
 		MakeContainerKeyboard(index, false),
 		tele.ModeMarkdownV2,
 	)
@@ -64,7 +64,7 @@ func ContainersHandler(docker contracts.Docker) func(ctx tele.Context) error {
 		SetSession("conts", containers)
 		current := containers[0]
 		return ctx.Send(
-			msgs.FormatContainer(current),
+			msgs.FmtContainer(current),
 			MakeContainerKeyboard(0, false),
 			tele.ModeMarkdownV2,
 		)
@@ -75,8 +75,12 @@ func ImagesHandler(docker contracts.Docker) func(ctx tele.Context) error {
 	return func(ctx tele.Context) error {
 		images := docker.ImagesList()
 		SetSession("imgs", images)
-		// current := images[0]
-		return ctx.Send("image!")
+		current := images[0]
+		return ctx.Send(
+			msgs.FmtImage(current),
+			MakeContainerKeyboard(0, false),
+			tele.ModeMarkdownV2,
+		)
 	}
 }
 
