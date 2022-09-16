@@ -2,22 +2,30 @@ package telegram
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/arshamalh/dockeroller/contracts"
 	"github.com/arshamalh/dockeroller/models"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
+	"github.com/arshamalh/dockeroller/tools"
 	tele "gopkg.in/telebot.v3"
+	"gopkg.in/telebot.v3/middleware"
 )
 
 func RegisterHandlers(bot *tele.Bot, docker contracts.Docker) {
+
+	// Middlewares
+	telegram_superadmin_id, _ := strconv.ParseInt(os.Getenv("TELE_ADMIN"), 10, 64)
+	bot.Use(middleware.Whitelist(telegram_superadmin_id))
 
 	// Command handlers
 	bot.Handle("/start", StartHandler)
 	bot.Handle("/containers", ContainersHandler(docker))
 	bot.Handle("/images", ImagesHandler(docker))
 
+	// TODO, prev button here is specific for containers, should be defined for images again.
 	// Button handlers
 	bot.Handle("\fprev", PrevNextBtnHandler)
 	bot.Handle("\fnext", PrevNextBtnHandler)
@@ -27,7 +35,7 @@ func RegisterHandlers(bot *tele.Bot, docker contracts.Docker) {
 }
 
 func StartHandler(ctx tele.Context) error {
-	return ctx.Send("hi " + ctx.Message().Sender.FirstName + "\n/containers /images")
+	return ctx.Send("hi " + ctx.Message().Sender.FirstName + "\n" + fmt.Sprint(ctx.Chat().ID) + "\n/containers /images")
 }
 
 func PrevNextBtnHandler(ctx tele.Context) error {
@@ -35,12 +43,17 @@ func PrevNextBtnHandler(ctx tele.Context) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	current := GetSession("conts").([]*models.Container)[index]
-	ctx.Edit(
+	conts := GetSession("conts").([]*models.Container)
+	index = tools.Indexer(index, len(conts))
+	current := conts[index]
+	err = ctx.Edit(
 		msgs.FmtContainer(current),
 		MakeContainerKeyboard(index, false),
 		tele.ModeMarkdownV2,
 	)
+	if err != nil {
+		fmt.Println(err)
+	}
 	return ctx.Respond()
 }
 
@@ -53,6 +66,7 @@ func BackContainersBtnHandler(ctx tele.Context) error {
 	current := GetSession("conts").([]*models.Container)[index]
 	return ctx.Edit(
 		msgs.FmtContainer(current),
+		// TODO: false and true passed for making keyboards are hardcoded but should be changed soon.
 		MakeContainerKeyboard(index, false),
 		tele.ModeMarkdownV2,
 	)

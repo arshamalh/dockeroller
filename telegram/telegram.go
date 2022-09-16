@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"os"
 	"time"
 
 	"github.com/arshamalh/dockeroller/contracts"
@@ -27,11 +28,12 @@ type telegram struct {
 
 func New(docker contracts.Docker) *telegram {
 	bot, _ := tele.NewBot(tele.Settings{
+		Token:  os.Getenv("TOKEN"),
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	})
 	RegisterHandlers(bot, docker)
 	bot.SetCommands(commands)
-	return &telegram{bot, docker, false, nil}
+	return &telegram{bot, docker, true, nil}
 }
 
 func (t *telegram) Start() {

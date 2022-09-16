@@ -5,9 +5,11 @@ import (
 	"github.com/arshamalh/dockeroller/itshell"
 	"github.com/arshamalh/dockeroller/telegram"
 	"github.com/arshamalh/dockeroller/tools"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load()
 	docker := docker.New()
 
 	// apiSrv := api.New(docker)
