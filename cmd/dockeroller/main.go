@@ -14,7 +14,7 @@ func main() {
 
 	// apiSrv := api.New(docker)
 
-	telegramSrv := telegram.New(docker)
+	telegramSrv, _ := telegram.New(docker)
 
 	// Read Yaml configurations and set them
 	configs, _ := tools.LoadYamlConfig()

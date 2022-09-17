@@ -6,6 +6,8 @@ import (
 
 	"github.com/arshamalh/dockeroller/contracts"
 	"github.com/arshamalh/dockeroller/models"
+	"github.com/arshamalh/dockeroller/pkg/session"
+	"github.com/arshamalh/dockeroller/telegram/handlers"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -26,14 +28,18 @@ type telegram struct {
 	config *contracts.Config
 }
 
-func New(docker contracts.Docker) *telegram {
-	bot, _ := tele.NewBot(tele.Settings{
+func New(docker contracts.Docker) (*telegram, error) {
+	bot, err := tele.NewBot(tele.Settings{
 		Token:  os.Getenv("TOKEN"),
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	})
-	RegisterHandlers(bot, docker)
+	if err != nil {
+		return nil, err
+	}
+	session := session.New()
+	handlers.Register(bot, docker, session)
 	bot.SetCommands(commands)
-	return &telegram{bot, docker, true, nil}
+	return &telegram{bot, docker, true, nil}, nil
 }
 
 func (t *telegram) Start() {
