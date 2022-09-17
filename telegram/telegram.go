@@ -1,13 +1,13 @@
 package telegram
 
 import (
-	"os"
 	"time"
 
 	"github.com/arshamalh/dockeroller/contracts"
 	"github.com/arshamalh/dockeroller/models"
 	"github.com/arshamalh/dockeroller/pkg/session"
 	"github.com/arshamalh/dockeroller/telegram/handlers"
+	"github.com/arshamalh/dockeroller/tools"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -28,9 +28,13 @@ type telegram struct {
 	config *contracts.Config
 }
 
-func New(docker contracts.Docker) (*telegram, error) {
+func New(docker contracts.Docker, config *contracts.Config) (*telegram, error) {
+	token, err := tools.GetToken(config)
+	if err != nil {
+		return nil, err
+	}
 	bot, err := tele.NewBot(tele.Settings{
-		Token:  os.Getenv("TOKEN"),
+		Token:  token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	})
 	if err != nil {
@@ -39,7 +43,7 @@ func New(docker contracts.Docker) (*telegram, error) {
 	session := session.New()
 	handlers.Register(bot, docker, session)
 	bot.SetCommands(commands)
-	return &telegram{bot, docker, true, nil}, nil
+	return &telegram{bot, docker, true, config}, nil
 }
 
 func (t *telegram) Start() {
@@ -55,12 +59,5 @@ func (t telegram) Info() models.ServiceInfo {
 	return models.ServiceInfo{
 		Name: "telegram",
 		IsOn: t.isOn,
-	}
-}
-
-func (t *telegram) SetConfig(config *contracts.Config) {
-	if config != nil {
-		t.config = config
-		t.bot.Token = (*config)["token"].(string)
 	}
 }

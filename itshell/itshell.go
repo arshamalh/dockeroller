@@ -48,14 +48,17 @@ func runInteractiveShell(services contracts.Services) {
 		case 2:
 			stage = StageGates(services.Get("telegram").Info().IsOn, services.Get("api").Info().IsOn)
 		case 11:
-			var token, username string
-			stage, token, username = StageTelegram()
+			// TODO: Is it a good idea to read configs from interactive shell?
+			//   So, We can make a yaml or env file out of entered configs.
+			//   Then load it in another part of the app, or any other good idea for it?
+			// var token, username string
+			stage, _, _ = StageTelegram()
 			// Set Config then Start
 			telegramSrv := services.Get("telegram")
-			telegramSrv.SetConfig(&contracts.Config{
-				"token":    token,
-				"username": username,
-			})
+			// telegramSrv.SetConfig(&contracts.Config{
+			// 	"token":    token,
+			// 	"username": username,
+			// })
 			telegramSrv.Start()
 		case 12:
 			// Set Config then start

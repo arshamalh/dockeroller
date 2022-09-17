@@ -6,7 +6,6 @@ type Service interface {
 	Start()
 	Stop()
 	Info() models.ServiceInfo
-	SetConfig(*Config)
 }
 
 type Services map[string]Service

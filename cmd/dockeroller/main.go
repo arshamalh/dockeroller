@@ -10,15 +10,13 @@ import (
 
 func main() {
 	godotenv.Load()
+	configs, _ := tools.LoadYamlConfig()
+
 	docker := docker.New()
 
 	// apiSrv := api.New(docker)
 
-	telegramSrv, _ := telegram.New(docker)
-
-	// Read Yaml configurations and set them
-	configs, _ := tools.LoadYamlConfig()
-	telegramSrv.SetConfig(configs.TelegramInfo)
+	telegramSrv, _ := telegram.New(docker, configs.TelegramInfo)
 
 	// App controller
 	shell := itshell.New(telegramSrv) // api, slack, discord, ...
