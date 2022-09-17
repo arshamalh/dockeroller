@@ -8,10 +8,12 @@ import (
 )
 
 func GetToken(config *contracts.Config) (token string, err error) {
-	if ct := (*config)["TOKEN"]; ct != nil {
-		token = ct.(string)
-		if token != "" {
-			return token, nil
+	if config != nil {
+		if ct := (*config)["TOKEN"]; ct != nil {
+			token = ct.(string)
+			if token != "" {
+				return token, nil
+			}
 		}
 	}
 	if envt := os.Getenv("TOKEN"); envt != "" {
