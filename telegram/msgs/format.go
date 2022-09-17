@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/arshamalh/dockeroller/models"
+	"github.com/arshamalh/dockeroller/tools"
 )
 
 // Monospace font is enabled by ` charater that is not supported in Go multiline string literals
@@ -41,10 +42,12 @@ func FmtImage(image *models.Image) string {
 }
 
 func FmtStats(stat models.Stats) string {
+	cpu_usage, memory_usage := tools.StatsCalculator(stat)
 	response := strings.NewReplacer(
-		"{cpu_usage}", fmt.Sprint(stat.CPU.Usage.Total),
-		"{memory_usage}", fmt.Sprint(stat.Memory.Usage),
+		"{cpu_usage}", fmt.Sprint(cpu_usage),
 		"{online_cpus}", fmt.Sprint(stat.CPU.OnlineCPUs),
+		"{memory_usage}", fmt.Sprint(memory_usage),
+		"{avaiable_memory}", fmt.Sprint(stat.Memory.Limit),
 	).Replace(Stat)
 	response = FmtMono(response)
 	return response
