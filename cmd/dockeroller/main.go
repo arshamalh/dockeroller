@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/arshamalh/dockeroller/docker"
-	"github.com/arshamalh/dockeroller/itshell"
 	"github.com/arshamalh/dockeroller/telegram"
 	"github.com/arshamalh/dockeroller/tools"
 	"github.com/joho/godotenv"
@@ -18,7 +17,5 @@ func main() {
 
 	telegramSrv, _ := telegram.New(docker, configs.TelegramInfo)
 
-	// App controller
-	shell := itshell.New(telegramSrv) // api, slack, discord, ...
-	shell.Run()
+	telegramSrv.Start()
 }
