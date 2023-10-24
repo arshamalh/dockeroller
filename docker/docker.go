@@ -1,15 +1,14 @@
 package docker
 
 import (
-	"fmt"
-
+	"github.com/arshamalh/dockeroller/log"
 	"github.com/moby/moby/client"
 )
 
 func New() *docker {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
-		fmt.Println(err)
+		log.Gl.Error(err.Error())
 	}
 	return &docker{
 		cli: cli,

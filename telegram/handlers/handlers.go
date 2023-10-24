@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -14,10 +13,9 @@ import (
 	"github.com/arshamalh/dockeroller/telegram/msgs"
 	"github.com/arshamalh/dockeroller/tools"
 	tele "gopkg.in/telebot.v3"
-	"gopkg.in/telebot.v3/middleware"
 )
 
-type telegram struct {
+type handler struct {
 	docker  contracts.Docker
 	bot     *tele.Bot
 	session contracts.Session
@@ -25,39 +23,36 @@ type telegram struct {
 }
 
 func Register(bot *tele.Bot, docker contracts.Docker, session contracts.Session) {
-	t := &telegram{
+	h := &handler{
 		docker:  docker,
 		bot:     bot,
 		session: session,
 	}
-	// Middlewares
-	telegram_superadmin_id, _ := strconv.ParseInt(os.Getenv("TELE_ADMIN"), 10, 64)
-	t.bot.Use(middleware.Whitelist(telegram_superadmin_id))
 
 	// Command handlers
-	t.bot.Handle("/start", StartHandler)
-	t.bot.Handle("/containers", t.ContainersHandler)
-	t.bot.Handle("/images", t.ImagesHandler)
+	h.bot.Handle("/start", StartHandler)
+	h.bot.Handle("/containers", h.ContainersHandler)
+	h.bot.Handle("/images", h.ImagesHandler)
 
 	// TODO, prev button here is specific for containers, should be defined for images again.
 	// Button handlers
-	t.bot.Handle("\fprev", t.PrevNextBtnHandler)
-	t.bot.Handle("\fnext", t.PrevNextBtnHandler)
-	t.bot.Handle("\fstats", t.StatsHandler)
-	t.bot.Handle("\flogs", t.LogsHandler)
-	t.bot.Handle("\fback_containers", t.BackContainersBtnHandler)
+	h.bot.Handle("\fprev", h.PrevNextBtnHandler)
+	h.bot.Handle("\fnext", h.PrevNextBtnHandler)
+	h.bot.Handle("\fstats", h.StatsHandler)
+	h.bot.Handle("\flogs", h.LogsHandler)
+	h.bot.Handle("\fback_containers", h.BackContainersBtnHandler)
 }
 
 func StartHandler(ctx tele.Context) error {
 	return ctx.Send("hi " + ctx.Message().Sender.FirstName + "\n" + fmt.Sprint(ctx.Chat().ID) + "\n/containers /images")
 }
 
-func (t *telegram) PrevNextBtnHandler(ctx tele.Context) error {
+func (h *handler) PrevNextBtnHandler(ctx tele.Context) error {
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		fmt.Println(err)
 	}
-	conts := t.session.Get(ctx.Chat().ID, "conts").([]*models.Container)
+	conts := h.session.Get(ctx.Chat().ID, "conts").([]*models.Container)
 	index = tools.Indexer(index, len(conts))
 	current := conts[index]
 	err = ctx.Edit(
@@ -71,13 +66,13 @@ func (t *telegram) PrevNextBtnHandler(ctx tele.Context) error {
 	return ctx.Respond()
 }
 
-func (t *telegram) BackContainersBtnHandler(ctx tele.Context) error {
-	t.session.Get(ctx.Chat().ID, "quit_channel").(chan struct{}) <- struct{}{}
+func (h *handler) BackContainersBtnHandler(ctx tele.Context) error {
+	h.session.Get(ctx.Chat().ID, "quit_channel").(chan struct{}) <- struct{}{}
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		fmt.Println(err)
 	}
-	current := t.session.Get(ctx.Chat().ID, "conts").([]*models.Container)[index]
+	current := h.session.Get(ctx.Chat().ID, "conts").([]*models.Container)[index]
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		// TODO: false and true passed for making keyboards are hardcoded but should be changed soon.
@@ -86,9 +81,9 @@ func (t *telegram) BackContainersBtnHandler(ctx tele.Context) error {
 	)
 }
 
-func (t *telegram) ContainersHandler(ctx tele.Context) error {
-	containers := t.docker.ContainersList()
-	t.session.Set(ctx.Chat().ID, "conts", containers)
+func (h *handler) ContainersHandler(ctx tele.Context) error {
+	containers := h.docker.ContainersList()
+	h.session.Set(ctx.Chat().ID, "conts", containers)
 	current := containers[0]
 	return ctx.Send(
 		msgs.FmtContainer(current),
@@ -97,9 +92,9 @@ func (t *telegram) ContainersHandler(ctx tele.Context) error {
 	)
 }
 
-func (t *telegram) ImagesHandler(ctx tele.Context) error {
-	images := t.docker.ImagesList()
-	t.session.Set(ctx.Chat().ID, "imgs", images)
+func (h *handler) ImagesHandler(ctx tele.Context) error {
+	images := h.docker.ImagesList()
+	h.session.Set(ctx.Chat().ID, "imgs", images)
 	current := images[0]
 	return ctx.Send(
 		msgs.FmtImage(current),
@@ -108,14 +103,14 @@ func (t *telegram) ImagesHandler(ctx tele.Context) error {
 	)
 }
 
-func (t *telegram) LogsHandler(ctx tele.Context) error {
+func (h *handler) LogsHandler(ctx tele.Context) error {
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		fmt.Println(err)
 	}
-	current := t.session.Get(ctx.Chat().ID, "conts").([]*models.Container)[index]
+	current := h.session.Get(ctx.Chat().ID, "conts").([]*models.Container)[index]
 	quit := make(chan struct{})
-	t.session.Set(ctx.Chat().ID, "quit_channel", quit)
+	h.session.Set(ctx.Chat().ID, "quit_channel", quit)
 	for i := 0; i < 10; i++ {
 		select {
 		case <-quit:
@@ -134,15 +129,15 @@ func (t *telegram) LogsHandler(ctx tele.Context) error {
 	return ctx.Respond()
 }
 
-func (t *telegram) StatsHandler(ctx tele.Context) error {
+func (h *handler) StatsHandler(ctx tele.Context) error {
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		fmt.Println(err)
 	}
-	current := t.session.Get(ctx.Chat().ID, "conts").([]*models.Container)[index]
+	current := h.session.Get(ctx.Chat().ID, "conts").([]*models.Container)[index]
 	quit := make(chan struct{})
-	t.session.Set(ctx.Chat().ID, "quit_channel", quit)
-	stream, err := t.docker.ContainerStats(current.ID)
+	h.session.Set(ctx.Chat().ID, "quit_channel", quit)
+	stream, err := h.docker.ContainerStats(current.ID)
 	if err != nil {
 		fmt.Println(err)
 	}

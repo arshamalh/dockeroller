@@ -1,8 +1,8 @@
 package telegram
 
-import tele "gopkg.in/telebot.v3"
+import "gopkg.in/telebot.v3"
 
-var commands = []tele.Command{
+var Commands = []telebot.Command{
 	{
 		Text:        "containers",
 		Description: "list all existing containers",

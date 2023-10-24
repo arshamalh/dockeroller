@@ -1,11 +1,12 @@
-- [ ] Use Cobra as explained in Readme.
+- [x] Add logging
+- [x] Dockerize, Makefile, Basic CI/CD
+- [x] Telegram is at the presentation layer, it doesn't need to be abstracted behind an interface.
+- [x] What is tools/get_token.go? there is no need for that. (UPDATE: Removed)
+- [x] Use Cobra as explained in Readme.
+- [x] ChatID whitelisting (has a TODO, middleware whitelisting) for security concerns
 - [ ] Remove session which is used as a one size fits all!
-- [ ] Should we replace docker by contract and use it directly as we will never replace it? Not actually, as we may want to plug a mock instead or wrap its functions
 - [ ] Load yaml config
-- [ ] Add logging
 - [ ] Define semi-hardcoded buttons! (button unique identifiers all totally hard coded in two places which lead to confusion, one when defining and one when putting in the handler, it's better to define button somehow else)
-- [ ] What is tools/get_token.go? there is no need for that.
 - [ ] Implement web hook and let the user decide for it.
-- [ ] Dockerize, Makefile and make it ready to be installed using go install, apt install, etc.
-- [ ] ChatID whitelisting for security concerns
-- [ ] Telegram is at the presentation layer, it doesn't need to be abstracted behind an interface.
+- [ ] Make it ready to be installed using go install, apt install, etc.
+- [ ] Should we replace docker by contract and use it directly as we will never replace it? Not actually, as we may want to plug a mock instead or wrap its functions
