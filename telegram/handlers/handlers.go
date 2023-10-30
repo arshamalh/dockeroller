@@ -2,18 +2,19 @@ package handlers
 
 import (
 	"github.com/arshamalh/dockeroller/contracts"
-	"github.com/arshamalh/dockeroller/telegram/btnkeys"
-	tele "gopkg.in/telebot.v3"
+	"github.com/arshamalh/dockeroller/repo"
+	"github.com/arshamalh/dockeroller/telegram/btns"
+	"gopkg.in/telebot.v3"
 )
 
 type handler struct {
 	docker  contracts.Docker
-	bot     *tele.Bot
-	session contracts.Session
+	bot     *telebot.Bot
+	session repo.Session
 	// log
 }
 
-func Register(bot *tele.Bot, docker contracts.Docker, session contracts.Session) {
+func Register(bot *telebot.Bot, docker contracts.Docker, session repo.Session) {
 	h := &handler{
 		docker:  docker,
 		bot:     bot,
@@ -26,9 +27,9 @@ func Register(bot *tele.Bot, docker contracts.Docker, session contracts.Session)
 	h.bot.Handle("/images", h.ImagesHandler)
 
 	// Button handlers
-	h.bot.Handle(btnkeys.ContNext.Key(), h.PrevNextBtnHandler)
-	h.bot.Handle(btnkeys.ContPrev.Key(), h.PrevNextBtnHandler)
-	h.bot.Handle(btnkeys.ContLogs.Key(), h.LogsHandler)
-	h.bot.Handle(btnkeys.ContStats.Key(), h.StatsHandler)
-	h.bot.Handle(btnkeys.ContBack.Key(), h.BackContainersBtnHandler)
+	h.bot.Handle(btns.ContNext.Key(), h.PrevNextBtnHandler)
+	h.bot.Handle(btns.ContPrev.Key(), h.PrevNextBtnHandler)
+	h.bot.Handle(btns.ContLogs.Key(), h.LogsHandler)
+	h.bot.Handle(btns.ContStats.Key(), h.StatsHandler)
+	h.bot.Handle(btns.ContBack.Key(), h.BackContainersBtnHandler)
 }

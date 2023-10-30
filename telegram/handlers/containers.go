@@ -7,19 +7,22 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/models"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
 	"github.com/arshamalh/dockeroller/tools"
+	"go.uber.org/zap"
 	"gopkg.in/telebot.v3"
 )
 
 func (h *handler) PrevNextBtnHandler(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		fmt.Println(err)
 	}
-	conts := h.session.Get(ctx.Chat().ID, "conts").([]*models.Container)
+	conts := h.session.GetContainers(userID)
 	index = tools.Indexer(index, len(conts))
 	current := conts[index]
 	err = ctx.Edit(
@@ -34,12 +37,13 @@ func (h *handler) PrevNextBtnHandler(ctx telebot.Context) error {
 }
 
 func (h *handler) BackContainersBtnHandler(ctx telebot.Context) error {
-	h.session.Get(ctx.Chat().ID, "quit_channel").(chan struct{}) <- struct{}{}
+	userID := ctx.Chat().ID
+	h.session.GetQuitChan(userID) <- struct{}{}
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		fmt.Println(err)
 	}
-	current := h.session.Get(ctx.Chat().ID, "conts").([]*models.Container)[index]
+	current := h.session.GetContainers(userID)[index]
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		// TODO: false and true passed for making keyboards are hardcoded but should be changed soon.
@@ -49,8 +53,9 @@ func (h *handler) BackContainersBtnHandler(ctx telebot.Context) error {
 }
 
 func (h *handler) ContainersHandler(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
 	containers := h.docker.ContainersList()
-	h.session.Set(ctx.Chat().ID, "conts", containers)
+	h.session.SetContainers(userID, containers)
 	current := containers[0]
 	return ctx.Send(
 		msgs.FmtContainer(current),
@@ -60,8 +65,9 @@ func (h *handler) ContainersHandler(ctx telebot.Context) error {
 }
 
 func (h *handler) ImagesHandler(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
 	images := h.docker.ImagesList()
-	h.session.Set(ctx.Chat().ID, "imgs", images)
+	h.session.SetImages(userID, images)
 	current := images[0]
 	return ctx.Send(
 		msgs.FmtImage(current),
@@ -71,13 +77,14 @@ func (h *handler) ImagesHandler(ctx telebot.Context) error {
 }
 
 func (h *handler) LogsHandler(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		fmt.Println(err)
 	}
-	current := h.session.Get(ctx.Chat().ID, "conts").([]*models.Container)[index]
+	current := h.session.GetContainers(userID)[index]
 	quit := make(chan struct{})
-	h.session.Set(ctx.Chat().ID, "quit_channel", quit)
+	h.session.SetQuitChan(userID, quit)
 	for i := 0; i < 10; i++ {
 		select {
 		case <-quit:
@@ -97,22 +104,24 @@ func (h *handler) LogsHandler(ctx telebot.Context) error {
 }
 
 func (h *handler) StatsHandler(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
-		fmt.Println(err)
+		log.Gl.Error(err.Error())
 	}
-	current := h.session.Get(ctx.Chat().ID, "conts").([]*models.Container)[index]
+	current := h.session.GetContainers(userID)[index]
 	quit := make(chan struct{})
-	h.session.Set(ctx.Chat().ID, "quit_channel", quit)
+	h.session.SetQuitChan(userID, quit)
 	stream, err := h.docker.ContainerStats(current.ID)
 	if err != nil {
-		fmt.Println(err)
+		log.Gl.Error(err.Error())
 	}
 	streamer := bufio.NewScanner(stream)
 	latest_msg := ""
 	for streamer.Scan() {
 		select {
 		case <-quit:
+			log.Gl.Debug("end of streaming stats for user", zap.Int64("used_id", userID))
 			return nil
 		default:
 			stats := models.Stats{}
@@ -125,7 +134,7 @@ func (h *handler) StatsHandler(ctx telebot.Context) error {
 					telebot.ModeMarkdownV2,
 				)
 				if err != nil {
-					fmt.Println(err)
+					log.Gl.Error(err.Error())
 				}
 				latest_msg = msg
 			}

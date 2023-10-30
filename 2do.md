@@ -5,12 +5,13 @@
 - [x] Use Cobra as explained in Readme.
 - [x] ChatID whitelisting (has a TODO, middleware whitelisting) for security concerns
 - [x] Define semi-hardcoded buttons! (button unique identifiers all totally hard coded in two places which lead to confusion, one when defining and one when putting in the handler, it's better to define button somehow else)
-- [ ] Remove session which is used as a one size fits all!
+- [x] Remove session which is used as a one size fits all!
 - [ ] Add image handlers, next, prev, back and whatever needed
 - [ ] Add ability to run containers out of images
 - [ ] Debug container logs, also what to do in case of high amount of logs?
+- [ ] Debug container stats as it sounds to have problem in some cases
+- [ ] Handle callback queries to show messages
 
-- [ ] Remove is_on (used in keyboards) as it seems to be redundant or at least doesn't make sense and clarify it.
 - [ ] Load yaml config
 - [ ] Implement web hook and let the user decide for it.
 - [ ] Make it ready to be installed using go install, apt install, etc.

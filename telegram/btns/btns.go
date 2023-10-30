@@ -1,4 +1,4 @@
-package btnkeys
+package btns
 
 type BtnKey string
 
@@ -14,11 +14,15 @@ func (bk BtnKey) String() string {
 
 const (
 	// Containers
-	ContPrev  BtnKey = "contPrev"
-	ContNext  BtnKey = "contNext"
-	ContBack  BtnKey = "contBack"
-	ContLogs  BtnKey = "contLogs"
-	ContStats BtnKey = "contStats"
+	ContPrev   BtnKey = "contPrev"
+	ContNext   BtnKey = "contNext"
+	ContBack   BtnKey = "contBack"
+	ContLogs   BtnKey = "contLogs"
+	ContStop   BtnKey = "contStop"
+	ContStart  BtnKey = "contStart"
+	ContStats  BtnKey = "contStats"
+	ContRemove BtnKey = "contRemove"
+	ContRename BtnKey = "contRename"
 
 	// Images
 	ImgPrev BtnKey = "imgPrev"
