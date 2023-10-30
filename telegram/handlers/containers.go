@@ -7,10 +7,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/models"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
 	"github.com/arshamalh/dockeroller/tools"
+	"go.uber.org/zap"
 	"gopkg.in/telebot.v3"
 )
 
@@ -105,20 +107,21 @@ func (h *handler) StatsHandler(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
-		fmt.Println(err)
+		log.Gl.Error(err.Error())
 	}
 	current := h.session.GetContainers(userID)[index]
 	quit := make(chan struct{})
 	h.session.SetQuitChan(userID, quit)
 	stream, err := h.docker.ContainerStats(current.ID)
 	if err != nil {
-		fmt.Println(err)
+		log.Gl.Error(err.Error())
 	}
 	streamer := bufio.NewScanner(stream)
 	latest_msg := ""
 	for streamer.Scan() {
 		select {
 		case <-quit:
+			log.Gl.Debug("end of streaming stats for user", zap.Int64("used_id", userID))
 			return nil
 		default:
 			stats := models.Stats{}
@@ -131,7 +134,7 @@ func (h *handler) StatsHandler(ctx telebot.Context) error {
 					telebot.ModeMarkdownV2,
 				)
 				if err != nil {
-					fmt.Println(err)
+					log.Gl.Error(err.Error())
 				}
 				latest_msg = msg
 			}
