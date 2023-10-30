@@ -1,4 +1,4 @@
-package btnkeys
+package btns
 
 type BtnKey string
 

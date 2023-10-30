@@ -3,7 +3,7 @@ package keyboards
 import (
 	"fmt"
 
-	"github.com/arshamalh/dockeroller/telegram/btnkeys"
+	"github.com/arshamalh/dockeroller/telegram/btns"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -17,8 +17,8 @@ func ContainersList(index int, is_on bool) *tele.ReplyMarkup {
 	}
 	keyboard.Inline(
 		tele.Row{
-			keyboard.Data("⬅", btnkeys.ContBack.String(), fmt.Sprint(index-1)),
-			keyboard.Data("➡", "next", fmt.Sprint(index+1)),
+			keyboard.Data("⬅", btns.ContPrev.String(), fmt.Sprint(index-1)),
+			keyboard.Data("➡", btns.ContNext.String(), fmt.Sprint(index+1)),
 		},
 		tele.Row{
 			start_stop,
