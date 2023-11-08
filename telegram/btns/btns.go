@@ -25,7 +25,10 @@ const (
 	ContRename BtnKey = "contRename"
 
 	// Images
-	ImgPrev BtnKey = "imgPrev"
-	ImgNext BtnKey = "imgNext"
-	ImgBack BtnKey = "imgBack"
+	ImgPrev   BtnKey = "imgPrev"
+	ImgNext   BtnKey = "imgNext"
+	ImgBack   BtnKey = "imgBack"
+	ImgRun    BtnKey = "imgRun"
+	ImgRemove BtnKey = "imgRm"
+	ImgRename BtnKey = "imgRename"
 )

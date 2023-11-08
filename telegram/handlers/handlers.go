@@ -32,4 +32,8 @@ func Register(bot *telebot.Bot, docker contracts.Docker, session repo.Session) {
 	h.bot.Handle(btns.ContLogs.Key(), h.Logs)
 	h.bot.Handle(btns.ContStats.Key(), h.Stats)
 	h.bot.Handle(btns.ContBack.Key(), h.ContainersBackBtn)
+
+	h.bot.Handle(btns.ImgBack.Key(), h.ImagesBackBtn)
+	h.bot.Handle(btns.ImgPrev.Key(), h.ImagesNavBtn)
+	h.bot.Handle(btns.ImgNext.Key(), h.ImagesNavBtn)
 }
