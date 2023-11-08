@@ -13,9 +13,9 @@ const (
 `
 
 	Stat = `
-''CPU Usage:    '' {cpu_usage},
+''CPU Usage:    '' {cpu_usage} %
 ''Online CPUs:  '' {online_cpus}
-''Memory Usage: '' {memory_usage}
+''Memory Usage: '' {memory_usage} ({memory_usage%} %)
 ''Avaiable Mem: '' {avaiable_memory}
 `
 )

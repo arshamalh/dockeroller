@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type CPUUsageStats struct {
+type CPUStats struct {
 	Usage struct {
 		Total  uint   `json:"total_usage"`
 		PerCPU []uint `json:"percpu_usage"`
@@ -11,20 +11,22 @@ type CPUUsageStats struct {
 	OnlineCPUs     int  `json:"online_cpus"`
 }
 
+type MemoryStats struct {
+	Usage    int64 `json:"usage"`
+	MaxUsage int64 `json:"max_usage"`
+	Limit    int64
+	Stats    struct {
+		Cache int64
+	} `json:"stats"`
+}
+
 type Stats struct {
 	Read      time.Time
 	Preread   time.Time
 	PIDsStats map[string]int `json:"pids_stats"`
-	CPU       CPUUsageStats  `json:"cpu_stats"`
-	PerCPU    CPUUsageStats  `json:"percpu_stats"`
-	Memory    struct {
-		Usage    uint
-		MaxUsage uint `json:"max_usage"`
-		Limit    uint
-		Stats    struct {
-			Cache uint
-		} `json:"stats"`
-	} `json:"memory_stats"`
+	CPU       CPUStats       `json:"cpu_stats"`
+	PerCPU    CPUStats       `json:"percpu_stats"`
+	Memory    MemoryStats    `json:"memory_stats"`
 }
 
 // TODO: Other fields should be implemented

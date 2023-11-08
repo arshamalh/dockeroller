@@ -16,6 +16,7 @@
 - [ ] Add ability to run containers out of images
 - [x] Debug container logs, also what to do in case of high amount of logs?
 - [ ] Debug container stats as it sounds to have problem in some cases
+- [x] Zero stats problem
 - [x] Welcome message should have button and better message
 - [ ] Remove previous messages buttons (when they are not required)
 - [ ] Handle callback queries to show messages, e.g. for remove.

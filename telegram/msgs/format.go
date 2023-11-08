@@ -42,12 +42,13 @@ func FmtImage(image *models.Image) string {
 }
 
 func FmtStats(stat models.Stats) string {
-	cpu_usage, memory_usage := tools.StatsCalculator(stat)
+	cpu_usage, memory_usage_percent := tools.StatsCalculator(stat)
 	response := strings.NewReplacer(
-		"{cpu_usage}", fmt.Sprint(cpu_usage),
+		"{cpu_usage}", fmt.Sprintf("%.2f", cpu_usage),
 		"{online_cpus}", fmt.Sprint(stat.CPU.OnlineCPUs),
-		"{memory_usage}", fmt.Sprint(memory_usage),
-		"{avaiable_memory}", fmt.Sprint(stat.Memory.Limit),
+		"{memory_usage}", tools.SizeToHumanReadable(stat.Memory.Usage),
+		"{memory_usage%}", fmt.Sprintf("%.2f", memory_usage_percent),
+		"{avaiable_memory}", tools.SizeToHumanReadable(stat.Memory.Limit),
 	).Replace(Stat)
 	response = FmtMono(response)
 	return response
