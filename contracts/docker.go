@@ -9,6 +9,6 @@ import (
 type Docker interface {
 	ContainersList() []*models.Container
 	ImagesList() []*models.Image
-	// ContainerLogs()
+	ContainerLogs(containerID string) (io.ReadCloser, error)
 	ContainerStats(containerID string) (io.ReadCloser, error)
 }

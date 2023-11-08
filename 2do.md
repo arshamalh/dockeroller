@@ -13,11 +13,13 @@
     - [ ] Add Image status and created at
     - [ ] Image run, rename, remove commands 
     - [ ] Error on line 78 if log file about ">" character should be resolved
-- [x] Welcome message should have button and better message
 - [ ] Add ability to run containers out of images
-- [ ] Debug container logs, also what to do in case of high amount of logs?
+- [x] Debug container logs, also what to do in case of high amount of logs?
 - [ ] Debug container stats as it sounds to have problem in some cases
-- [ ] Handle callback queries to show messages
+- [x] Welcome message should have button and better message
+- [ ] Remove previous messages buttons (when they are not required)
+- [ ] Handle callback queries to show messages, e.g. for remove.
+    - Helper: &telebot.CallbackResponse{Text: fmt.Sprint(ctx.Data(), "removed!")}
 
 - [ ] Load yaml config
 - [ ] Implement web hook and let the user decide for it.

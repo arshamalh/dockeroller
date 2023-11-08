@@ -3,7 +3,6 @@ package handlers
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -20,7 +19,7 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
-		fmt.Println(err)
+		log.Gl.Error(err.Error())
 	}
 	conts := h.session.GetContainers(userID)
 	index = tools.Indexer(index, len(conts))
@@ -31,7 +30,7 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 		telebot.ModeMarkdownV2,
 	)
 	if err != nil {
-		fmt.Println(err)
+		log.Gl.Error(err.Error())
 	}
 	return ctx.Respond()
 }
@@ -41,7 +40,7 @@ func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 	h.session.GetQuitChan(userID) <- struct{}{}
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
-		fmt.Println(err)
+		log.Gl.Error(err.Error())
 	}
 	current := h.session.GetContainers(userID)[index]
 	return ctx.Edit(
@@ -68,22 +67,34 @@ func (h *handler) Logs(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
-		fmt.Println(err)
+		log.Gl.Error(err.Error())
 	}
 	current := h.session.GetContainers(userID)[index]
 	quit := make(chan struct{})
 	h.session.SetQuitChan(userID, quit)
-	for i := 0; i < 10; i++ {
+	stream, err := h.docker.ContainerLogs(current.ID)
+	if err != nil {
+		log.Gl.Error(err.Error())
+	}
+
+	streamer := bufio.NewScanner(stream)
+	latestMsg := ""
+	for streamer.Scan() {
 		select {
 		case <-quit:
 			return nil
 		default:
-			err := ctx.Edit(
-				current.Name+" log "+fmt.Sprint(i),
-				keyboards.Back(index, true),
-			)
-			if err != nil {
-				fmt.Println(err)
+			if newMsg := streamer.Text(); newMsg != latestMsg {
+				err := ctx.Edit(
+					newMsg,
+					keyboards.Back(index, true),
+				)
+				if err != nil {
+					log.Gl.Error(err.Error())
+				}
+				latestMsg = newMsg
+			} else {
+				log.Gl.Debug("same info")
 			}
 			time.Sleep(time.Second)
 		}
