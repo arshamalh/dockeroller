@@ -16,7 +16,7 @@ import (
 	"gopkg.in/telebot.v3"
 )
 
-func (h *handler) PrevNextBtnHandler(ctx telebot.Context) error {
+func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
@@ -36,7 +36,7 @@ func (h *handler) PrevNextBtnHandler(ctx telebot.Context) error {
 	return ctx.Respond()
 }
 
-func (h *handler) BackContainersBtnHandler(ctx telebot.Context) error {
+func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	h.session.GetQuitChan(userID) <- struct{}{}
 	index, err := strconv.Atoi(ctx.Data())
@@ -52,7 +52,7 @@ func (h *handler) BackContainersBtnHandler(ctx telebot.Context) error {
 	)
 }
 
-func (h *handler) ContainersHandler(ctx telebot.Context) error {
+func (h *handler) ContainersList(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	containers := h.docker.ContainersList()
 	h.session.SetContainers(userID, containers)
@@ -64,19 +64,7 @@ func (h *handler) ContainersHandler(ctx telebot.Context) error {
 	)
 }
 
-func (h *handler) ImagesHandler(ctx telebot.Context) error {
-	userID := ctx.Chat().ID
-	images := h.docker.ImagesList()
-	h.session.SetImages(userID, images)
-	current := images[0]
-	return ctx.Send(
-		msgs.FmtImage(current),
-		keyboards.ContainersList(0, false),
-		telebot.ModeMarkdownV2,
-	)
-}
-
-func (h *handler) LogsHandler(ctx telebot.Context) error {
+func (h *handler) Logs(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
@@ -103,7 +91,7 @@ func (h *handler) LogsHandler(ctx telebot.Context) error {
 	return ctx.Respond()
 }
 
-func (h *handler) StatsHandler(ctx telebot.Context) error {
+func (h *handler) Stats(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {

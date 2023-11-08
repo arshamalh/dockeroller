@@ -23,13 +23,13 @@ func Register(bot *telebot.Bot, docker contracts.Docker, session repo.Session) {
 
 	// Command handlers
 	h.bot.Handle("/start", StartHandler)
-	h.bot.Handle("/containers", h.ContainersHandler)
+	h.bot.Handle("/containers", h.ContainersList)
 	h.bot.Handle("/images", h.ImagesHandler)
 
 	// Button handlers
-	h.bot.Handle(btns.ContNext.Key(), h.PrevNextBtnHandler)
-	h.bot.Handle(btns.ContPrev.Key(), h.PrevNextBtnHandler)
-	h.bot.Handle(btns.ContLogs.Key(), h.LogsHandler)
-	h.bot.Handle(btns.ContStats.Key(), h.StatsHandler)
-	h.bot.Handle(btns.ContBack.Key(), h.BackContainersBtnHandler)
+	h.bot.Handle(btns.ContNext.Key(), h.ContainersNavBtn)
+	h.bot.Handle(btns.ContPrev.Key(), h.ContainersNavBtn)
+	h.bot.Handle(btns.ContLogs.Key(), h.Logs)
+	h.bot.Handle(btns.ContStats.Key(), h.Stats)
+	h.bot.Handle(btns.ContBack.Key(), h.ContainersBackBtn)
 }

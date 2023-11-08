@@ -34,6 +34,8 @@ func registerStart(root *cobra.Command) {
 }
 
 func start(token string, whitelistedIDs []int64) {
+	log.Gl.Info("server has started")
+
 	if err := godotenv.Load(); err != nil {
 		log.Gl.Error(err.Error())
 	}
