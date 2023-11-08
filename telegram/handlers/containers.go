@@ -23,13 +23,19 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	}
 	conts := h.session.GetContainers(userID)
 	if len(conts) == 0 {
-		return ctx.Respond(&telebot.CallbackResponse{Text: "There is either no containers or you should run /containers again!"})
+		return ctx.Respond(
+			&telebot.CallbackResponse{
+				Text: "There is either no containers or you should run /containers again!",
+			},
+		)
 	}
 	index = tools.Indexer(index, len(conts))
 	current := conts[index]
+
+	containerIsOn := current.State == models.ContainerStateRunning
 	err = ctx.Edit(
 		msgs.FmtContainer(current),
-		keyboards.ContainersList(index, false),
+		keyboards.ContainersList(index, containerIsOn),
 		telebot.ModeMarkdownV2,
 	)
 	if err != nil {
@@ -46,10 +52,11 @@ func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 	}
 	current := h.session.GetContainers(userID)[index]
+
+	containerIsOn := current.State == models.ContainerStateRunning
 	return ctx.Edit(
 		msgs.FmtContainer(current),
-		// TODO: false and true passed for making keyboards are hardcoded but should be changed soon.
-		keyboards.ContainersList(index, false),
+		keyboards.ContainersList(index, containerIsOn),
 		telebot.ModeMarkdownV2,
 	)
 }
@@ -59,14 +66,17 @@ func (h *handler) ContainersList(ctx telebot.Context) error {
 	containers := h.docker.ContainersList()
 	h.session.SetContainers(userID, containers)
 	current := containers[0]
+
+	containerIsOn := current.State == models.ContainerStateRunning
 	return ctx.Send(
 		msgs.FmtContainer(current),
-		keyboards.ContainersList(0, false),
+		keyboards.ContainersList(0, containerIsOn),
 		telebot.ModeMarkdownV2,
 	)
 }
 
 func (h *handler) Logs(ctx telebot.Context) error {
+	// TODO: A list (queue) of logs, append to the end and remove from the beginning
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
@@ -144,4 +154,67 @@ func (h *handler) Stats(ctx telebot.Context) error {
 		}
 	}
 	return ctx.Respond()
+}
+
+func (h *handler) ContainerStart(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
+	index, err := strconv.Atoi(ctx.Data())
+	if err != nil {
+		log.Gl.Error(err.Error())
+	}
+	current := h.session.GetContainers(userID)[index]
+	if err := h.docker.ContainerStart(current.ID); err != nil {
+		log.Gl.Error(err.Error())
+		return ctx.Respond(
+			&telebot.CallbackResponse{
+				Text: "We cannot start the container!",
+			},
+		)
+	}
+
+	current, err = h.docker.GetContainer(current.ID)
+	if err != nil {
+		return ctx.Respond(
+			&telebot.CallbackResponse{
+				Text: "Container started, but we're not able to show current state.",
+			},
+		)
+	}
+	return ctx.Edit(
+		msgs.FmtContainer(current),
+		keyboards.ContainersList(index, true),
+		telebot.ModeMarkdownV2,
+	)
+}
+
+func (h *handler) ContainerStop(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
+	index, err := strconv.Atoi(ctx.Data())
+	if err != nil {
+		log.Gl.Error(err.Error())
+	}
+	current := h.session.GetContainers(userID)[index]
+	if err := h.docker.ContainerStop(current.ID); err != nil {
+		log.Gl.Error(err.Error())
+		return ctx.Respond(
+			&telebot.CallbackResponse{
+				Text: "We cannot stop the container!",
+			},
+		)
+	}
+
+	current, err = h.docker.GetContainer(current.ID)
+	if err != nil {
+		return ctx.Respond(
+			&telebot.CallbackResponse{
+				Text: "Container stopped, but we're not able to show current state.",
+			},
+		)
+	}
+
+	return ctx.Edit(
+		msgs.FmtContainer(current),
+		keyboards.ContainersList(index, false),
+		telebot.ModeMarkdownV2,
+	)
 }

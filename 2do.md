@@ -6,6 +6,10 @@
 - [x] ChatID whitelisting (has a TODO, middleware whitelisting) for security concerns
 - [x] Define semi-hardcoded buttons! (button unique identifiers all totally hard coded in two places which lead to confusion, one when defining and one when putting in the handler, it's better to define button somehow else)
 - [x] Remove session which is used as a one size fits all!
+- [x] Debug container logs, also what to do in case of high amount of logs?
+- [x] Zero stats problem
+- [x] Container Start Stop handlers and functionality
+- [x] Welcome message should have button and better message
 - [x] Add image handlers, next, prev, back
     - [x] Image size should be in human readable units
     - [ ] Image ID should be shorted (trimmed)
@@ -14,10 +18,8 @@
     - [ ] Image run, rename, remove commands 
     - [ ] Error on line 78 if log file about ">" character should be resolved
 - [ ] Add ability to run containers out of images
-- [x] Debug container logs, also what to do in case of high amount of logs?
 - [ ] Debug container stats as it sounds to have problem in some cases
-- [x] Zero stats problem
-- [x] Welcome message should have button and better message
+- [ ] Ability to filter Containers and Images
 - [ ] Remove previous messages buttons (when they are not required)
 - [ ] Handle callback queries to show messages, e.g. for remove.
     - Helper: &telebot.CallbackResponse{Text: fmt.Sprint(ctx.Data(), "removed!")}
