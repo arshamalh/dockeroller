@@ -25,3 +25,13 @@ func (d docker) ContainerStats(containerID string) (io.ReadCloser, error) {
 	stats, err := d.cli.ContainerStats(context.TODO(), containerID, true)
 	return stats.Body, err
 }
+
+func (d docker) ContainerLogs(containerID string) (io.ReadCloser, error) {
+	// TODO: Interesting options about logs are available, you can get them from user settings
+	return d.cli.ContainerLogs(context.TODO(), containerID, types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Follow:     true,
+		Details:    false,
+	})
+}
