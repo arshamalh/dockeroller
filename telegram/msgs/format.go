@@ -34,7 +34,7 @@ func FmtContainer(container *models.Container) string {
 func FmtImage(image *models.Image) string {
 	response := strings.NewReplacer(
 		"{id}", image.ID,
-		"{size}", fmt.Sprint(image.Size),
+		"{size}", tools.SizeToHumanReadable(image.Size),
 		"{tags}", fmt.Sprint(image.Tags),
 	).Replace(Image)
 	response = FmtMono(response)

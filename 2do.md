@@ -7,7 +7,7 @@
 - [x] Define semi-hardcoded buttons! (button unique identifiers all totally hard coded in two places which lead to confusion, one when defining and one when putting in the handler, it's better to define button somehow else)
 - [x] Remove session which is used as a one size fits all!
 - [x] Add image handlers, next, prev, back
-    - [ ] Image size should be in humen readable units
+    - [x] Image size should be in human readable units
     - [ ] Image ID should be shorted (trimmed)
     - [ ] Image name and tag should be separated???
     - [ ] Add Image status and created at
