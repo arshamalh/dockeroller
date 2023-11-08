@@ -13,6 +13,7 @@
     - [ ] Add Image status and created at
     - [ ] Image run, rename, remove commands 
     - [ ] Error on line 78 if log file about ">" character should be resolved
+- [x] Welcome message should have button and better message
 - [ ] Add ability to run containers out of images
 - [ ] Debug container logs, also what to do in case of high amount of logs?
 - [ ] Debug container stats as it sounds to have problem in some cases

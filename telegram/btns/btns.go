@@ -14,6 +14,7 @@ func (bk BtnKey) String() string {
 
 const (
 	// Containers
+	Containers BtnKey = "conts"
 	ContPrev   BtnKey = "contPrev"
 	ContNext   BtnKey = "contNext"
 	ContBack   BtnKey = "contBack"
@@ -25,6 +26,7 @@ const (
 	ContRename BtnKey = "contRename"
 
 	// Images
+	Images    BtnKey = "imgs"
 	ImgPrev   BtnKey = "imgPrev"
 	ImgNext   BtnKey = "imgNext"
 	ImgBack   BtnKey = "imgBack"

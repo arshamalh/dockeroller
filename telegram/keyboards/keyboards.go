@@ -7,6 +7,18 @@ import (
 	"gopkg.in/telebot.v3"
 )
 
+func Welcome() *telebot.ReplyMarkup {
+	keyboard := &telebot.ReplyMarkup{}
+
+	keyboard.Inline(
+		telebot.Row{
+			keyboard.Data("Images 🌄", btns.Images.String()),
+			keyboard.Data("Containers 📦", btns.Containers.String()),
+		},
+	)
+	return keyboard
+}
+
 func ContainersList(index int, containerIsOn bool) *telebot.ReplyMarkup {
 	keyboard := &telebot.ReplyMarkup{}
 
@@ -33,15 +45,15 @@ func ImagesList(index int) *telebot.ReplyMarkup {
 	keyboard := &telebot.ReplyMarkup{}
 	keyboard.Inline(
 		telebot.Row{
-			keyboard.Data("⬅", btns.ImgPrev.String(), fmt.Sprint(index-1)),
-			keyboard.Data("➡", btns.ImgNext.String(), fmt.Sprint(index+1)),
+			keyboard.Data("Prev ⬅", btns.ImgPrev.String(), fmt.Sprint(index-1)),
+			keyboard.Data("Next ➡", btns.ImgNext.String(), fmt.Sprint(index+1)),
 		},
 		telebot.Row{
-			keyboard.Data("Run", btns.ImgRun.String(), fmt.Sprint(index)),
+			keyboard.Data("Run 🏁", btns.ImgRun.String(), fmt.Sprint(index)),
 		},
 		telebot.Row{
-			keyboard.Data("Remove", btns.ImgRemove.String(), fmt.Sprint(index)),
-			keyboard.Data("Rename", btns.ImgRename.String(), fmt.Sprint(index)),
+			keyboard.Data("Remove 🗑", btns.ImgRemove.String(), fmt.Sprint(index)),
+			keyboard.Data("Rename ✏️", btns.ImgRename.String(), fmt.Sprint(index)),
 		},
 	)
 

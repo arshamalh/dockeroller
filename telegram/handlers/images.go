@@ -10,7 +10,7 @@ import (
 	"gopkg.in/telebot.v3"
 )
 
-func (h *handler) ImagesHandler(ctx telebot.Context) error {
+func (h *handler) ImagesList(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	images := h.docker.ImagesList()
 	h.session.SetImages(userID, images)
