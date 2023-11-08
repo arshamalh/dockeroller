@@ -22,6 +22,9 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 	}
 	conts := h.session.GetContainers(userID)
+	if len(conts) == 0 {
+		return ctx.Respond(&telebot.CallbackResponse{Text: "There is either no containers or you should run /containers again!"})
+	}
 	index = tools.Indexer(index, len(conts))
 	current := conts[index]
 	err = ctx.Edit(

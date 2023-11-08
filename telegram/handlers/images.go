@@ -29,6 +29,9 @@ func (h *handler) ImagesNavBtn(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 	}
 	images := h.session.GetImages(userID)
+	if len(images) == 0 {
+		return ctx.Respond(&telebot.CallbackResponse{Text: "There is either no images or you should run /images again!"})
+	}
 	index = tools.Indexer(index, len(images))
 	current := images[index]
 	err = ctx.Edit(
