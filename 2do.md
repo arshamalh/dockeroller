@@ -10,6 +10,7 @@
 - [x] Zero stats problem
 - [x] Container Start Stop handlers and functionality
 - [x] Welcome message should have button and better message
+- [x] Logs streaming
 - [x] Add image handlers, next, prev, back
     - [x] Image size should be in human readable units
     - [ ] Image ID should be shorted (trimmed)

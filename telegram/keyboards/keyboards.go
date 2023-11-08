@@ -24,17 +24,17 @@ func ContainersList(index int, containerIsOn bool) *telebot.ReplyMarkup {
 
 	keyboard.Inline(
 		telebot.Row{
-			keyboard.Data("⬅", btns.ContPrev.String(), fmt.Sprint(index-1)),
-			keyboard.Data("➡", btns.ContNext.String(), fmt.Sprint(index+1)),
+			keyboard.Data("Prev ⬅", btns.ContPrev.String(), fmt.Sprint(index-1)),
+			keyboard.Data("Next ➡", btns.ContNext.String(), fmt.Sprint(index+1)),
 		},
 		telebot.Row{
 			switchBtn(keyboard, index, containerIsOn),
-			keyboard.Data("Remove", btns.ContRemove.String(), fmt.Sprint(index)),
-			keyboard.Data("Rename", btns.ContRename.String(), fmt.Sprint(index)),
+			keyboard.Data("Remove 🗑", btns.ContRemove.String(), fmt.Sprint(index)),
+			keyboard.Data("Rename ✏️", btns.ContRename.String(), fmt.Sprint(index)),
 		},
 		telebot.Row{
-			keyboard.Data("Logs", btns.ContLogs.String(), fmt.Sprint(index)),
-			keyboard.Data("Stats", btns.ContStats.String(), fmt.Sprint(index)),
+			keyboard.Data("Logs 🪵", btns.ContLogs.String(), fmt.Sprint(index)),
+			keyboard.Data("Stats 📊", btns.ContStats.String(), fmt.Sprint(index)),
 		},
 	)
 
@@ -74,8 +74,8 @@ func Back(index int, containerIsOn bool) *telebot.ReplyMarkup {
 
 func switchBtn(keyboard *telebot.ReplyMarkup, index int, containerIsOn bool) telebot.Btn {
 	if containerIsOn {
-		return keyboard.Data("Stop", btns.ContStop.String(), fmt.Sprint(index))
+		return keyboard.Data("Stop 🛑", btns.ContStop.String(), fmt.Sprint(index))
 	} else {
-		return keyboard.Data("Start", btns.ContStart.String(), fmt.Sprint(index))
+		return keyboard.Data("Start 🏃", btns.ContStart.String(), fmt.Sprint(index))
 	}
 }

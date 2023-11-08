@@ -75,8 +75,8 @@ func (h *handler) ContainersList(ctx telebot.Context) error {
 	)
 }
 
-func (h *handler) Logs(ctx telebot.Context) error {
-	// TODO: A list (queue) of logs, append to the end and remove from the beginning
+func (h *handler) ContainerLogs(ctx telebot.Context) error {
+	// TODO: Starting from the beginning might cause confusion in long stream of errors, we should have a navigate till to the end button.
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
@@ -91,31 +91,31 @@ func (h *handler) Logs(ctx telebot.Context) error {
 	}
 
 	streamer := bufio.NewScanner(stream)
-	latestMsg := ""
+	queue := models.NewQueue()
 	for streamer.Scan() {
 		select {
 		case <-quit:
 			return nil
 		default:
-			if newMsg := streamer.Text(); newMsg != latestMsg {
-				err := ctx.Edit(
-					newMsg,
-					keyboards.Back(index, true),
-				)
-				if err != nil {
-					log.Gl.Error(err.Error())
-				}
-				latestMsg = newMsg
-			} else {
-				log.Gl.Debug("same info")
+			newMsg := streamer.Text()
+			queue.Push(newMsg)
+			if queue.Length > 10 { // TODO: 10 should not be hard-coded
+				queue.Pop()
 			}
-			time.Sleep(time.Second)
+
+			// Omitted error by purpose (the error is just about not modified message because of repetitive content)
+			ctx.Edit(
+				queue.String(),
+				keyboards.Back(index, true),
+			)
+			time.Sleep(time.Millisecond * 500)
+			// TODO: sleeping time, not hardcoded, not too much, not so little (under 500 millisecond would be annoying)
 		}
 	}
 	return ctx.Respond()
 }
 
-func (h *handler) Stats(ctx telebot.Context) error {
+func (h *handler) ContainerStats(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
@@ -129,7 +129,7 @@ func (h *handler) Stats(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 	}
 	streamer := bufio.NewScanner(stream)
-	latest_msg := ""
+	latestMsg := ""
 	for streamer.Scan() {
 		select {
 		case <-quit:
@@ -137,18 +137,21 @@ func (h *handler) Stats(ctx telebot.Context) error {
 			return nil
 		default:
 			stats := models.Stats{}
-			json.Unmarshal(streamer.Bytes(), &stats)
-			msg := msgs.FmtStats(stats)
-			if msg != latest_msg {
+			err := json.Unmarshal(streamer.Bytes(), &stats)
+			if err != nil {
+				log.Gl.Error(err.Error())
+			}
+
+			if newMsg := msgs.FmtStats(stats); newMsg != latestMsg {
 				err := ctx.Edit(
-					msg,
+					newMsg,
 					keyboards.Back(index, true),
 					telebot.ModeMarkdownV2,
 				)
 				if err != nil {
 					log.Gl.Error(err.Error())
 				}
-				latest_msg = msg
+				latestMsg = newMsg
 			}
 			time.Sleep(time.Second)
 		}
