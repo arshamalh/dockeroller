@@ -62,6 +62,7 @@ func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 }
 
 func (h *handler) ContainersList(ctx telebot.Context) error {
+	ctx.Respond()
 	userID := ctx.Chat().ID
 	containers := h.docker.ContainersList()
 	h.session.SetContainers(userID, containers)

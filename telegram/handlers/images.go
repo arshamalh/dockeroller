@@ -11,6 +11,7 @@ import (
 )
 
 func (h *handler) ImagesList(ctx telebot.Context) error {
+	ctx.Respond()
 	userID := ctx.Chat().ID
 	images := h.docker.ImagesList()
 	h.session.SetImages(userID, images)
