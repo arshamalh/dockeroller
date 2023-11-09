@@ -13,6 +13,8 @@ type Docker interface {
 	ContainerStats(containerID string) (io.ReadCloser, error)
 	ContainerStart(containerID string) error
 	ContainerStop(containerID string) error
+	ContainerRemove(containerID string, removeForm *models.ContainerRemoveForm) error
+	ContainerRename(containerID, newName string) error
 
 	ImagesList() []*models.Image
 }

@@ -29,12 +29,36 @@ func ContainersList(index int, containerIsOn bool) *telebot.ReplyMarkup {
 		},
 		telebot.Row{
 			switchBtn(keyboard, index, containerIsOn),
-			keyboard.Data("Remove 🗑", btns.ContRemove.String(), fmt.Sprint(index)),
+			keyboard.Data("Remove 🗑", btns.ContRemoveForm.String(), fmt.Sprint(index)),
 			keyboard.Data("Rename ✏️", btns.ContRename.String(), fmt.Sprint(index)),
 		},
 		telebot.Row{
 			keyboard.Data("Logs 🪵", btns.ContLogs.String(), fmt.Sprint(index)),
 			keyboard.Data("Stats 📊", btns.ContStats.String(), fmt.Sprint(index)),
+		},
+	)
+
+	return keyboard
+}
+
+func ContainerRemove(index int, force, removeVolumes bool) *telebot.ReplyMarkup {
+	keyboard := &telebot.ReplyMarkup{}
+
+	keyboard.Inline(
+		telebot.Row{
+			keyboard.Data(
+				fmt.Sprintf("Force: %t", force),
+				string(btns.ContRemoveForce),
+				fmt.Sprint(index),
+			),
+			keyboard.Data(
+				fmt.Sprintf("Remove Volumes: %t", removeVolumes),
+				string(btns.ContRemoveVolume),
+				fmt.Sprint(index),
+			),
+		},
+		telebot.Row{
+			keyboard.Data("Done", string(btns.ContRemoveDone), fmt.Sprint(index)),
 		},
 	)
 

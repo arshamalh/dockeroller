@@ -14,16 +14,19 @@ func (bk BtnKey) String() string {
 
 const (
 	// Containers
-	Containers BtnKey = "conts"
-	ContPrev   BtnKey = "contPrev"
-	ContNext   BtnKey = "contNext"
-	ContBack   BtnKey = "contBack"
-	ContLogs   BtnKey = "contLogs"
-	ContStop   BtnKey = "contStop"
-	ContStart  BtnKey = "contStart"
-	ContStats  BtnKey = "contStats"
-	ContRemove BtnKey = "contRemove"
-	ContRename BtnKey = "contRename"
+	Containers       BtnKey = "conts"
+	ContPrev         BtnKey = "contPrev"
+	ContNext         BtnKey = "contNext"
+	ContBack         BtnKey = "contBack"
+	ContLogs         BtnKey = "contLogs"
+	ContStop         BtnKey = "contStop"
+	ContStart        BtnKey = "contStart"
+	ContStats        BtnKey = "contStats"
+	ContRename       BtnKey = "contRename"
+	ContRemoveForm   BtnKey = "contRmForm"
+	ContRemoveForce  BtnKey = "contFcRm"
+	ContRemoveVolume BtnKey = "contRmVol"
+	ContRemoveDone   BtnKey = "contRmDone"
 
 	// Images
 	Images    BtnKey = "imgs"

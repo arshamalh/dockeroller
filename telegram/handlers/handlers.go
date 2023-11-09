@@ -37,6 +37,10 @@ func Register(bot *telebot.Bot, docker contracts.Docker, session repo.Session) {
 	h.bot.Handle(btns.ContBack.Key(), h.ContainersBackBtn)
 	h.bot.Handle(btns.ContStop.Key(), h.ContainerStop)
 	h.bot.Handle(btns.ContStart.Key(), h.ContainerStart)
+	h.bot.Handle(btns.ContRemoveForm.Key(), h.ContainerRemoveForm)
+	h.bot.Handle(btns.ContRemoveForce.Key(), h.ContainerRemoveForce)
+	h.bot.Handle(btns.ContRemoveVolume.Key(), h.ContainerRemoveVolumes)
+	h.bot.Handle(btns.ContRemoveDone.Key(), h.ContainerRemoveDone)
 
 	/// Images
 	h.bot.Handle(btns.Images.Key(), h.ImagesList)
