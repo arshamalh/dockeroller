@@ -36,6 +36,8 @@ func FmtImage(image *models.Image) string {
 		"{id}", image.ID,
 		"{size}", tools.SizeToHumanReadable(image.Size),
 		"{tags}", fmt.Sprint(image.Tags),
+		"{status}", fmt.Sprint(image.Status),
+		"{created_at}", fmt.Sprint(image.CreatedAt),
 	).Replace(Image)
 	response = FmtMono(response)
 	return response

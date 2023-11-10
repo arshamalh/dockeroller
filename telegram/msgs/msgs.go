@@ -18,6 +18,8 @@ e.g. list your images or containers:
 ''ID:   '' {id},
 ''Size: '' {size},
 ''Tags: '' {tags}
+''Status: '' {status}
+''Created at: '' {created_at}
 `
 
 	Stat = `
