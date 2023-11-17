@@ -47,7 +47,7 @@ func start(token string, whitelistedIDs []int64) {
 		if os.Getenv("TOKEN") != "" {
 			token = os.Getenv("TOKEN")
 		} else {
-			log.Gl.Error("telegram can't start because no token is provided")
+			log.Gl.Fatal("telegram can't start because no token is provided")
 		}
 	}
 	startTelegram(docker, token, whitelistedIDs)
