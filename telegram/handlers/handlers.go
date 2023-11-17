@@ -1,20 +1,20 @@
 package handlers
 
 import (
-	"github.com/arshamalh/dockeroller/contracts"
+	"github.com/arshamalh/dockeroller/docker"
 	"github.com/arshamalh/dockeroller/repo"
 	"github.com/arshamalh/dockeroller/telegram/btns"
 	"gopkg.in/telebot.v3"
 )
 
 type handler struct {
-	docker  contracts.Docker
+	docker  docker.Docker
 	bot     *telebot.Bot
 	session repo.Session
 	// log
 }
 
-func Register(bot *telebot.Bot, docker contracts.Docker, session repo.Session) {
+func Register(bot *telebot.Bot, docker docker.Docker, session repo.Session) {
 	h := &handler{
 		docker:  docker,
 		bot:     bot,
@@ -25,6 +25,9 @@ func Register(bot *telebot.Bot, docker contracts.Docker, session repo.Session) {
 	h.bot.Handle("/start", StartHandler)
 	h.bot.Handle("/containers", h.ContainersList)
 	h.bot.Handle("/images", h.ImagesList)
+
+	// Text Handler
+	h.bot.Handle(telebot.OnText, h.General)
 
 	// Button handlers
 	// Containers
@@ -41,6 +44,7 @@ func Register(bot *telebot.Bot, docker contracts.Docker, session repo.Session) {
 	h.bot.Handle(btns.ContRemoveForce.Key(), h.ContainerRemoveForce)
 	h.bot.Handle(btns.ContRemoveVolume.Key(), h.ContainerRemoveVolumes)
 	h.bot.Handle(btns.ContRemoveDone.Key(), h.ContainerRemoveDone)
+	h.bot.Handle(btns.ContRename.Key(), h.ContainerRename)
 
 	/// Images
 	h.bot.Handle(btns.Images.Key(), h.ImagesList)

@@ -3,6 +3,18 @@ package repo
 import "github.com/arshamalh/dockeroller/models"
 
 type Session interface {
+	SetScene(userID int64, scene models.Scene)
+	GetScene(userID int64) models.Scene
+
+	SetCurrentQuestion(userID int64, question models.Question)
+	GetCurrentQuestion(userID int64) models.Question
+
+	SetCurrentContainer(userID int64, container *models.Container)
+	GetCurrentContainer(userID int64) *models.Container
+
+	SetCurrentImage(userID int64, image *models.Image)
+	GetCurrentImage(userID int64) *models.Image
+
 	SetContainers(userID int64, containers []*models.Container)
 	GetContainers(userID int64) []*models.Container
 

@@ -8,6 +8,22 @@ You can use dockeroller to manage your docker daemon through different Messenger
 e.g. list your images or containers:
 `
 
+	ContainerRenamed = `
+Container {old_name} successfully renamed to {new_name}
+`
+
+	ImageRenamed = `
+Image {old_name} successfully renamed to {new_name}
+`
+
+	ContainerNewNameInput = `
+Enter new container name:	
+`
+
+	ImageNewNameInput = `
+Enter new container name:
+`
+
 	Container = `
 ''Container name: '' {name},
 ''Used Image:     '' {image},

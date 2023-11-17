@@ -84,12 +84,11 @@ func ImagesList(index int) *telebot.ReplyMarkup {
 	return keyboard
 }
 
-func Back(index int, containerIsOn bool) *telebot.ReplyMarkup {
+func Back(index int) *telebot.ReplyMarkup {
 	keyboard := &telebot.ReplyMarkup{}
 	keyboard.Inline(
 		telebot.Row{
-			keyboard.Data("⬅", btns.ContBack.String(), fmt.Sprint(index)),
-			switchBtn(keyboard, index, containerIsOn),
+			keyboard.Data("Back ⬅", btns.ContBack.String(), fmt.Sprint(index)),
 		},
 	)
 

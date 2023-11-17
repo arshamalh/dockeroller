@@ -46,7 +46,9 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 
 func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	h.session.GetQuitChan(userID) <- struct{}{}
+	if quitChan := h.session.GetQuitChan(userID); quitChan != nil {
+		quitChan <- struct{}{}
+	}
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
@@ -64,10 +66,11 @@ func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 func (h *handler) ContainersList(ctx telebot.Context) error {
 	ctx.Respond()
 	userID := ctx.Chat().ID
-	containers := h.docker.ContainersList()
-	h.session.SetContainers(userID, containers)
+	containers := h.updateContainersList(userID)
+	if len(containers) == 0 {
+		return ctx.Send("there is no container")
+	}
 	current := containers[0]
-
 	containerIsOn := current.State == models.ContainerStateRunning
 	return ctx.Send(
 		msgs.FmtContainer(current),
@@ -107,7 +110,7 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 			// Omitted error by purpose (the error is just about not modified message because of repetitive content)
 			ctx.Edit(
 				queue.String(),
-				keyboards.Back(index, true),
+				keyboards.Back(index),
 			)
 			time.Sleep(time.Millisecond * 500)
 			// TODO: sleeping time, not hardcoded, not too much, not so little (under 500 millisecond would be annoying)
@@ -146,7 +149,7 @@ func (h *handler) ContainerStats(ctx telebot.Context) error {
 			if newMsg := msgs.FmtStats(stats); newMsg != latestMsg {
 				err := ctx.Edit(
 					newMsg,
-					keyboards.Back(index, true),
+					keyboards.Back(index),
 					telebot.ModeMarkdownV2,
 				)
 				if err != nil {
@@ -262,11 +265,13 @@ func (h *handler) ContainerRemoveDone(ctx telebot.Context) error {
 
 	ctx.Respond(&telebot.CallbackResponse{Text: "Container removed successfully"})
 
-	containers := h.docker.ContainersList()
-	h.session.SetContainers(userID, containers)
+	containers := h.updateContainersList(userID)
+	if len(containers) == 0 {
+		return ctx.Send("there is no container")
+	}
 	current = containers[0]
-	containerIsOn := current.State == models.ContainerStateRunning
 
+	containerIsOn := current.State == models.ContainerStateRunning
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(0, containerIsOn),
@@ -316,4 +321,63 @@ func (h *handler) ContainerRemoveVolumes(ctx telebot.Context) error {
 		keyboards.ContainerRemove(index, cRemoveForm.Force, cRemoveForm.RemoveVolumes),
 		telebot.ModeMarkdownV2,
 	)
+}
+
+func (h *handler) ContainerRename(ctx telebot.Context) error {
+	if err := ctx.Respond(); err != nil {
+		log.Gl.Error(err.Error())
+	}
+	userID := ctx.Chat().ID
+	currentContainerIndex := ctx.Data()
+	index, err := strconv.Atoi(currentContainerIndex)
+	if err != nil {
+		log.Gl.Error(err.Error())
+		return ctx.Send("wrong button clicked!")
+	}
+	containers := h.session.GetContainers(userID)
+	current := containers[index]
+	h.session.SetScene(userID, models.SceneRenameContainer)
+	h.session.SetCurrentContainer(userID, current)
+
+	return ctx.Edit(
+		msgs.ContainerNewNameInput,
+		keyboards.Back(index),
+		telebot.ModeMarkdownV2,
+	)
+}
+
+func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
+	container := h.session.GetCurrentContainer(userID)
+	if container == nil {
+		return ctx.Edit(
+			"you're lost!, please /start again",
+			keyboards.Back(0),
+			telebot.ModeMarkdownV2,
+		)
+	}
+
+	newName := ctx.Text()
+	if err := h.docker.ContainerRename(container.ID, newName); err != nil {
+		log.Gl.Error(err.Error())
+		return ctx.Edit(
+			"we cannot rename this container",
+			keyboards.Back(0),
+			telebot.ModeMarkdownV2,
+		)
+	}
+
+	h.updateContainersList(userID)
+
+	return ctx.Send(
+		msgs.FmtContainerRenamed(container.Name, newName),
+		keyboards.Back(0),
+		telebot.ModeMarkdownV2,
+	)
+}
+
+func (h *handler) updateContainersList(userID int64) []*models.Container {
+	containers := h.docker.ContainersList()
+	h.session.SetContainers(userID, containers)
+	return containers
 }

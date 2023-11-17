@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/arshamalh/dockeroller/log"
+	"github.com/arshamalh/dockeroller/models"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
 	"github.com/arshamalh/dockeroller/tools"
@@ -60,4 +61,18 @@ func (h *handler) ImagesBackBtn(ctx telebot.Context) error {
 		keyboards.ImagesList(index),
 		telebot.ModeMarkdownV2,
 	)
+}
+
+func (h *handler) ImageRename(ctx telebot.Context) error {
+	if err := ctx.Respond(); err != nil {
+		log.Gl.Error(err.Error())
+	}
+	userID := ctx.Chat().ID
+	h.session.SetScene(userID, models.SceneRenameImage)
+
+	return ctx.Send(msgs.ImageNewNameInput)
+}
+
+func (h *handler) ImageRenameTextHandler(ctx telebot.Context) error {
+	return nil
 }

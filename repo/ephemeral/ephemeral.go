@@ -5,10 +5,14 @@ import (
 )
 
 type data struct {
-	Containers []*models.Container
-	Images     []*models.Image
-	UserData   *models.UserData
-	QuitChan   chan struct{}
+	Scene            models.Scene
+	CurrentQuestion  models.Question
+	Containers       []*models.Container
+	Images           []*models.Image
+	CurrentContainer *models.Container
+	CurrentImage     *models.Image
+	UserData         *models.UserData
+	QuitChan         chan struct{}
 }
 
 type ephemeral struct {
@@ -19,6 +23,52 @@ func New() *ephemeral {
 	return &ephemeral{
 		data: make(map[int64]data),
 	}
+}
+
+func (e *ephemeral) SetScene(userID int64, scene models.Scene) {
+	uData := e.data[userID]
+	uData.Scene = scene
+	switch scene {
+	case models.SceneRenameContainer:
+		uData.CurrentQuestion = models.QNewContainerName
+	case models.SceneRenameImage:
+		uData.CurrentQuestion = models.QNewImageName
+	}
+	e.data[userID] = uData
+}
+
+func (e *ephemeral) GetScene(userID int64) models.Scene {
+	return e.data[userID].Scene
+}
+
+func (e *ephemeral) SetCurrentQuestion(userID int64, question models.Question) {
+	uData := e.data[userID]
+	uData.CurrentQuestion = question
+	e.data[userID] = uData
+}
+
+func (e *ephemeral) GetCurrentQuestion(userID int64) models.Question {
+	return e.data[userID].CurrentQuestion
+}
+
+func (e *ephemeral) SetCurrentContainer(userID int64, container *models.Container) {
+	uData := e.data[userID]
+	uData.CurrentContainer = container
+	e.data[userID] = uData
+}
+
+func (e *ephemeral) GetCurrentContainer(userID int64) *models.Container {
+	return e.data[userID].CurrentContainer
+}
+
+func (e *ephemeral) SetCurrentImage(userID int64, image *models.Image) {
+	uData := e.data[userID]
+	uData.CurrentImage = image
+	e.data[userID] = uData
+}
+
+func (e *ephemeral) GetCurrentImage(userID int64) *models.Image {
+	return e.data[userID].CurrentImage
 }
 
 func (e *ephemeral) GetContainers(userID int64) []*models.Container {

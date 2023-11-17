@@ -10,14 +10,18 @@ import (
 
 // Monospace font is enabled by ` charater that is not supported in Go multiline string literals
 // So we should format it using ” and replacing them.
+// characters ()_-.>=< are also reserved by telegram and we will replace them with their escaped ones.
 func FmtMono(input string) string {
 	return strings.NewReplacer(
 		"''", "`",
-		"(", "\\(", // ()_-. are reserved by telegram.
+		"(", "\\(",
 		")", "\\)",
 		"_", "\\_",
 		".", "\\.",
 		"-", "\\-",
+		"=", "\\=",
+		"<", "\\<",
+		">", "\\>",
 	).Replace(input)
 }
 
@@ -52,6 +56,23 @@ func FmtStats(stat models.Stats) string {
 		"{memory_usage%}", fmt.Sprintf("%.2f", memory_usage_percent),
 		"{avaiable_memory}", tools.SizeToHumanReadable(stat.Memory.Limit),
 	).Replace(Stat)
+	response = FmtMono(response)
+	return response
+}
+
+func FmtContainerRenamed(old_name, new_name string) string {
+	return fmtRenamed(ContainerRenamed, old_name, new_name)
+}
+
+func FmtImageRenamed(old_name, new_name string) string {
+	return fmtRenamed(ImageRenamed, old_name, new_name)
+}
+
+func fmtRenamed(base, old, new string) string {
+	response := strings.NewReplacer(
+		"{old_name}", old,
+		"{new_name}", new,
+	).Replace(base)
 	response = FmtMono(response)
 	return response
 }
