@@ -39,5 +39,5 @@ const (
 	// ImageRemovePruneChildren
 	ImgRmPruneCh BtnKey = "imgPnCh"
 	ImgRmDone    BtnKey = "imgRmDone"
-	ImgRename    BtnKey = "imgRename"
+	ImgTag       BtnKey = "imgTag"
 )

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/arshamalh/dockeroller/docker"
+	"github.com/arshamalh/dockeroller/models"
 	"github.com/arshamalh/dockeroller/repo"
 	"github.com/arshamalh/dockeroller/telegram/btns"
 	"gopkg.in/telebot.v3"
@@ -54,4 +55,15 @@ func Register(bot *telebot.Bot, docker docker.Docker, session repo.Session) {
 	h.bot.Handle(btns.ImgRmForce.Key(), h.ImageRemoveForce)
 	h.bot.Handle(btns.ImgRmPruneCh.Key(), h.ImageRemovePruneChildren)
 	h.bot.Handle(btns.ImgRmDone.Key(), h.ImageRemoveDone)
+	h.bot.Handle(btns.ImgTag.Key(), h.ImageTag)
+}
+
+// Set a scene for the specified user
+func (h *handler) EnterScene(userID int64, scene models.Scene) {
+	h.session.SetScene(userID, scene)
+}
+
+// Returns the current scene for the specified user
+func (h *handler) Scene(userID int64) models.Scene {
+	return h.session.GetScene(userID)
 }

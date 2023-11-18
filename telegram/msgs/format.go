@@ -61,18 +61,19 @@ func FmtStats(stat models.Stats) string {
 }
 
 func FmtContainerRenamed(old_name, new_name string) string {
-	return fmtRenamed(ContainerRenamed, old_name, new_name)
-}
-
-func FmtImageRenamed(old_name, new_name string) string {
-	return fmtRenamed(ImageRenamed, old_name, new_name)
-}
-
-func fmtRenamed(base, old, new string) string {
 	response := strings.NewReplacer(
-		"{old_name}", old,
-		"{new_name}", new,
-	).Replace(base)
+		"{old_name}", old_name,
+		"{new_name}", new_name,
+	).Replace(ContainerRenamed)
+	response = FmtMono(response)
+	return response
+}
+
+func FmtImageTagged(id, tag string) string {
+	response := strings.NewReplacer(
+		"{id}", id,
+		"{tag}", tag,
+	).Replace(ImageTagged)
 	response = FmtMono(response)
 	return response
 }

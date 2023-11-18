@@ -12,8 +12,8 @@ e.g. list your images or containers:
 Container {old_name} successfully renamed to {new_name}
 `
 
-	ImageRenamed = `
-Image {old_name} successfully renamed to {new_name}
+	ImageTagged = `
+Image {id} successfully tagged {tag}
 `
 
 	ContainerNewNameInput = `
@@ -21,7 +21,7 @@ Enter new container name:
 `
 
 	ImageNewNameInput = `
-Enter new container name:
+Enter new image tag:
 `
 
 	Container = `

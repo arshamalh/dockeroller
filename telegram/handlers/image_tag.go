@@ -24,12 +24,12 @@ func (h *handler) ImageTag(ctx telebot.Context) error {
 	}
 	images := h.session.GetImages(userID)
 	current := images[index]
-	h.session.SetScene(userID, models.SceneRenameImage)
+	h.EnterScene(userID, models.SceneRenameImage)
 	h.session.SetCurrentImage(userID, current)
 
 	return ctx.Edit(
 		msgs.ImageNewNameInput,
-		keyboards.ContainerBack(index),
+		keyboards.ImageBack(index),
 		telebot.ModeMarkdownV2,
 	)
 }
@@ -40,7 +40,7 @@ func (h *handler) ImageTagTextHandler(ctx telebot.Context) error {
 	if image == nil {
 		return ctx.Edit(
 			"you're lost!, please /start again",
-			keyboards.ContainerBack(0),
+			keyboards.ImageBack(0),
 			telebot.ModeMarkdownV2,
 		)
 	}
@@ -50,7 +50,7 @@ func (h *handler) ImageTagTextHandler(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 		return ctx.Edit(
 			"we cannot rename this image",
-			keyboards.ContainerBack(0),
+			keyboards.ImageBack(0),
 			telebot.ModeMarkdownV2,
 		)
 	}
@@ -58,8 +58,8 @@ func (h *handler) ImageTagTextHandler(ctx telebot.Context) error {
 	h.updateImagesList(userID)
 
 	return ctx.Send(
-		msgs.FmtImageRenamed(image.ID, newTag),
-		keyboards.ContainerBack(0),
+		msgs.FmtImageTagged(image.ID, newTag),
+		keyboards.ImageBack(0),
 		telebot.ModeMarkdownV2,
 	)
 }

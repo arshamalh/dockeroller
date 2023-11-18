@@ -19,7 +19,7 @@ func ImagesList(index int) *telebot.ReplyMarkup {
 		},
 		telebot.Row{
 			keyboard.Data("Remove 🗑", string(btns.ImgRmForm), fmt.Sprint(index)),
-			keyboard.Data("Rename ✏️", string(btns.ImgRename), fmt.Sprint(index)),
+			keyboard.Data("Tag ✏️", string(btns.ImgTag), fmt.Sprint(index)),
 		},
 	)
 
@@ -44,6 +44,17 @@ func ImageRemove(index int, force, pruneChildren bool) *telebot.ReplyMarkup {
 		},
 		telebot.Row{
 			keyboard.Data("Done", string(btns.ImgRmDone), fmt.Sprint(index)),
+		},
+	)
+
+	return keyboard
+}
+
+func ImageBack(index int) *telebot.ReplyMarkup {
+	keyboard := &telebot.ReplyMarkup{}
+	keyboard.Inline(
+		telebot.Row{
+			keyboard.Data("Back ⬅", string(btns.ImgBack), fmt.Sprint(index)),
 		},
 	)
 
