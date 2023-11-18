@@ -1,4 +1,4 @@
-# Dockeroller
+# Dockeroller 🐳
 
 Dockeroller (docker controller) is an open-source project giving you the power to control your docker daemon through Telegram, it was made for fun and personal use, but it appears to have many real-world use cases and it is a part of ChatOps world!
 
@@ -36,7 +36,7 @@ We will also add a password mechanism soon.
 - [ ] Images
     - [x] List
     - [x] Remove
-    - [ ] Tagging
+    - [x] Tagging
 
 ## Some Screen Shots
 <img src="assets/containerslist_started_one.jpeg" alt="dockeroller containers list started one" width="500"/>
