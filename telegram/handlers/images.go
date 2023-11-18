@@ -48,7 +48,9 @@ func (h *handler) ImagesNavBtn(ctx telebot.Context) error {
 
 func (h *handler) ImagesBackBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	h.session.GetQuitChan(userID) <- struct{}{}
+	if quitChan := h.session.GetQuitChan(userID); quitChan != nil {
+		quitChan <- struct{}{}
+	}
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
@@ -56,7 +58,6 @@ func (h *handler) ImagesBackBtn(ctx telebot.Context) error {
 	current := h.session.GetImages(userID)[index]
 	return ctx.Edit(
 		msgs.FmtImage(current),
-		// TODO: false and true passed for making keyboards are hardcoded but should be changed soon.
 		keyboards.ImagesList(index),
 		telebot.ModeMarkdownV2,
 	)

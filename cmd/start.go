@@ -4,7 +4,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/arshamalh/dockeroller/contracts"
 	"github.com/arshamalh/dockeroller/docker"
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/repo/ephemeral"
@@ -53,7 +52,7 @@ func start(token string, whitelistedIDs []int64) {
 	startTelegram(docker, token, whitelistedIDs)
 }
 
-func startTelegram(docker contracts.Docker, token string, whitelistedIDs []int64) {
+func startTelegram(docker docker.Docker, token string, whitelistedIDs []int64) {
 	bot, err := telebot.NewBot(telebot.Settings{
 		Token:  token,
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},

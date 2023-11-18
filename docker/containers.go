@@ -58,3 +58,14 @@ func (d *docker) ContainerStart(containerID string) error {
 func (d *docker) ContainerStop(containerID string) error {
 	return d.cli.ContainerStop(context.TODO(), containerID, nil)
 }
+
+func (d *docker) ContainerRemove(containerID string, removeForm *models.ContainerRemoveForm) error {
+	return d.cli.ContainerRemove(context.TODO(), containerID, types.ContainerRemoveOptions{
+		RemoveVolumes: removeForm.RemoveVolumes,
+		Force:         removeForm.Force,
+	})
+}
+
+func (d *docker) ContainerRename(containerID, newName string) error {
+	return d.cli.ContainerRename(context.TODO(), containerID, newName)
+}
