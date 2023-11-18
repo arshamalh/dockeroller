@@ -1,7 +1,6 @@
 .env
-.github
-.vscode/
+.vscode
 vendor
-log
-/.idea/
+log.json
+.idea
 
