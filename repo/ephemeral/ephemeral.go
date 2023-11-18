@@ -130,3 +130,23 @@ func (e *ephemeral) GetContainerRemoveForm(userID int64) *models.ContainerRemove
 	}
 	return nil
 }
+
+func (e *ephemeral) SetImageRemoveForm(userID int64, force, pruneChildren bool) *models.ImageRemoveForm {
+	uData := e.data[userID]
+	if uData.UserData == nil {
+		uData.UserData = &models.UserData{
+			ImageRemoveForm: &models.ImageRemoveForm{},
+		}
+	}
+	uData.UserData.ImageRemoveForm.Force = force
+	uData.UserData.ImageRemoveForm.PruneChildren = pruneChildren
+	e.data[userID] = uData
+	return uData.UserData.ImageRemoveForm
+}
+
+func (e *ephemeral) GetImageRemoveForm(userID int64) *models.ImageRemoveForm {
+	if e.data[userID].UserData != nil && e.data[userID].UserData.ImageRemoveForm != nil {
+		return e.data[userID].UserData.ImageRemoveForm
+	}
+	return nil
+}

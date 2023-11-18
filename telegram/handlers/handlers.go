@@ -30,9 +30,8 @@ func Register(bot *telebot.Bot, docker docker.Docker, session repo.Session) {
 	h.bot.Handle(telebot.OnText, h.General)
 
 	// Button handlers
-	// Containers
+	// ** Containers ** //
 	h.bot.Handle(btns.Containers.Key(), h.ContainersList)
-
 	h.bot.Handle(btns.ContNext.Key(), h.ContainersNavBtn)
 	h.bot.Handle(btns.ContPrev.Key(), h.ContainersNavBtn)
 	h.bot.Handle(btns.ContLogs.Key(), h.ContainerLogs)
@@ -46,11 +45,13 @@ func Register(bot *telebot.Bot, docker docker.Docker, session repo.Session) {
 	h.bot.Handle(btns.ContRemoveDone.Key(), h.ContainerRemoveDone)
 	h.bot.Handle(btns.ContRename.Key(), h.ContainerRename)
 
-	/// Images
+	// ** Images ** //
 	h.bot.Handle(btns.Images.Key(), h.ImagesList)
-
 	h.bot.Handle(btns.ImgBack.Key(), h.ImagesBackBtn)
 	h.bot.Handle(btns.ImgPrev.Key(), h.ImagesNavBtn)
 	h.bot.Handle(btns.ImgNext.Key(), h.ImagesNavBtn)
-
+	h.bot.Handle(btns.ImgRmForm.Key(), h.ImageRemoveForm)
+	h.bot.Handle(btns.ImgRmForce.Key(), h.ImageRemoveForce)
+	h.bot.Handle(btns.ImgRmPruneCh.Key(), h.ImageRemovePruneChildren)
+	h.bot.Handle(btns.ImgRmDone.Key(), h.ImageRemoveDone)
 }

@@ -29,4 +29,7 @@ type Session interface {
 
 	SetContainerRemoveForm(userID int64, force, removeVolumes bool) *models.ContainerRemoveForm
 	GetContainerRemoveForm(userID int64) *models.ContainerRemoveForm
+
+	SetImageRemoveForm(userID int64, force, removeVolumes bool) *models.ImageRemoveForm
+	GetImageRemoveForm(userID int64) *models.ImageRemoveForm
 }

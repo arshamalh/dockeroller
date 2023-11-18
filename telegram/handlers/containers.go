@@ -110,7 +110,7 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 			// Omitted error by purpose (the error is just about not modified message because of repetitive content)
 			ctx.Edit(
 				queue.String(),
-				keyboards.Back(index),
+				keyboards.ContainerBack(index),
 			)
 			time.Sleep(time.Millisecond * 500)
 			// TODO: sleeping time, not hardcoded, not too much, not so little (under 500 millisecond would be annoying)
@@ -149,7 +149,7 @@ func (h *handler) ContainerStats(ctx telebot.Context) error {
 			if newMsg := msgs.FmtStats(stats); newMsg != latestMsg {
 				err := ctx.Edit(
 					newMsg,
-					keyboards.Back(index),
+					keyboards.ContainerBack(index),
 					telebot.ModeMarkdownV2,
 				)
 				if err != nil {
@@ -341,7 +341,7 @@ func (h *handler) ContainerRename(ctx telebot.Context) error {
 
 	return ctx.Edit(
 		msgs.ContainerNewNameInput,
-		keyboards.Back(index),
+		keyboards.ContainerBack(index),
 		telebot.ModeMarkdownV2,
 	)
 }
@@ -352,7 +352,7 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 	if container == nil {
 		return ctx.Edit(
 			"you're lost!, please /start again",
-			keyboards.Back(0),
+			keyboards.ContainerBack(0),
 			telebot.ModeMarkdownV2,
 		)
 	}
@@ -362,7 +362,7 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 		return ctx.Edit(
 			"we cannot rename this container",
-			keyboards.Back(0),
+			keyboards.ContainerBack(0),
 			telebot.ModeMarkdownV2,
 		)
 	}
@@ -371,7 +371,7 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 
 	return ctx.Send(
 		msgs.FmtContainerRenamed(container.Name, newName),
-		keyboards.Back(0),
+		keyboards.ContainerBack(0),
 		telebot.ModeMarkdownV2,
 	)
 }

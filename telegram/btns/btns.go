@@ -29,11 +29,15 @@ const (
 	ContRemoveDone   BtnKey = "contRmDone"
 
 	// Images
-	Images    BtnKey = "imgs"
-	ImgPrev   BtnKey = "imgPrev"
-	ImgNext   BtnKey = "imgNext"
-	ImgBack   BtnKey = "imgBack"
-	ImgRun    BtnKey = "imgRun"
-	ImgRemove BtnKey = "imgRm"
-	ImgRename BtnKey = "imgRename"
+	Images     BtnKey = "imgs"
+	ImgPrev    BtnKey = "imgPrev"
+	ImgNext    BtnKey = "imgNext"
+	ImgBack    BtnKey = "imgBack"
+	ImgRun     BtnKey = "imgRun"
+	ImgRmForm  BtnKey = "imgRmForm"
+	ImgRmForce BtnKey = "imgRmFc"
+	// ImageRemovePruneChildren
+	ImgRmPruneCh BtnKey = "imgPnCh"
+	ImgRmDone    BtnKey = "imgRmDone"
+	ImgRename    BtnKey = "imgRename"
 )

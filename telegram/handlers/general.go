@@ -23,7 +23,7 @@ func (h *handler) General(ctx telebot.Context) error {
 	case models.SceneRenameContainer:
 		return h.ContainerRenameTextHandler(ctx)
 	case models.SceneRenameImage:
-		return h.ImageRenameTextHandler(ctx)
+		return h.ImageTagTextHandler(ctx)
 	}
 
 	log.Gl.Error("orphan scene", zap.Int64("user id", userID), zap.Int("current scene", int(scene)))

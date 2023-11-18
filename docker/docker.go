@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"context"
 	"io"
 
 	"github.com/arshamalh/dockeroller/log"
@@ -19,6 +20,8 @@ type Docker interface {
 	ContainerRename(containerID, newName string) error
 
 	ImagesList() []*models.Image
+	ImageTag(ctx context.Context, imageID, newTag string) error
+	ImageRemove(ctx context.Context, imageID string, force, pruneChildren bool) error
 }
 
 func New() *docker {
