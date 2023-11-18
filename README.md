@@ -1,9 +1,12 @@
 # Dockeroller
 
-Dockeroller (docker controller) is an open-source project giving you the power to control your docker daemon through Telegram, it was made for fun and personal use, but it appears to have many real-world use-cases and it is a part of ChatOps world!
+Dockeroller (docker controller) is an open-source project giving you the power to control your docker daemon through Telegram, it was made for fun and personal use, but it appears to have many real-world use cases and it is a part of ChatOps world!
 
 > [!IMPORTANT]
 > Dockeroller is made to run self-hosted, so WE WON'T ACCESS or STORE ANY OF YOUR DATA in any terms.
+
+> [!CAUTION]
+> Dockeroller is in Alpha phase and not yet production-ready
 
 ## How to use
 First of all, you should make a bot (it's name and username doesn't matter) with [bot father](https://t.me/BotFather), copy its `token`, then you can run the CLI using:
@@ -17,23 +20,23 @@ There is no security concerns as long as you keep your telegram account safe, an
 ```bash
 dockeroller start -w 22,33,44
 ```
-For finding your ID, when you message dockeroller in UnAuthorized state, it will return your ID.
+Dockeroller will return your ChatID when you message it in an UnAuthorized state, then you can whitelist it.
 
-We will also add a password mechanism in the near future.
+We will also add a password mechanism soon.
 
 ## Features
-- [ ] Containers
+- [x] Containers
     - [x] List
     - [x] Start
     - [x] Stop
     - [x] Live logs
     - [x] Live stats
     - [x] Remove
-    - [ ] Rename
+    - [x] Rename
 - [ ] Images
-    - [ ] List
-    - [ ] Remove
-    - [ ] Rename
+    - [x] List
+    - [x] Remove
+    - [ ] Tagging
 
 ## Some Screen Shots
 <img src="assets/containerslist_started_one.jpeg" alt="dockeroller containers list started one" width="500"/>
