@@ -1,8 +1,6 @@
 package tools
 
-import (
-	"github.com/arshamalh/dockeroller/models"
-)
+import "github.com/arshamalh/dockeroller/entities"
 
 // These are formulas to calculate stats
 // cpu_delta = cpu_stats.cpu_usage.total_usage - precpu_stats.cpu_usage.total_usage
@@ -16,7 +14,7 @@ import (
 //
 // CPU usage are based on the host, not VM, so in Windows devices, you may see different cpu usages in the Bot and Docker desktop and docker cli,
 // but, that's calculable. both are correct anyway.
-func StatsCalculator(stat models.Stats) (cpu_usage float64, memory_usage float64) {
+func StatsCalculator(stat entities.Stats) (cpu_usage float64, memory_usage float64) {
 	// CPU usage calculation
 	cpu_delta := stat.CPU.Usage.Total - stat.PerCPU.Usage.Total
 	system_cpu_delta := stat.CPU.SystemCPUUsage - stat.PerCPU.SystemCPUUsage

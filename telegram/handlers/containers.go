@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
-	"github.com/arshamalh/dockeroller/models"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
 	"github.com/arshamalh/dockeroller/tools"
@@ -17,11 +17,12 @@ import (
 
 func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
+	session := h.session.Get(userID)
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	conts := h.session.GetContainers(userID)
+	conts := session.GetContainers()
 	if len(conts) == 0 {
 		return ctx.Respond(
 			&telebot.CallbackResponse{
@@ -32,7 +33,7 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	index = tools.Indexer(index, len(conts))
 	current := conts[index]
 
-	containerIsOn := current.State == models.ContainerStateRunning
+	containerIsOn := current.State == entities.ContainerStateRunning
 	err = ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(index, containerIsOn),
@@ -46,16 +47,17 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 
 func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	if quitChan := h.session.GetQuitChan(userID); quitChan != nil {
+	session := h.session.Get(userID)
+	if quitChan := session.GetQuitChan(); quitChan != nil {
 		quitChan <- struct{}{}
 	}
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := h.session.GetContainers(userID)[index]
+	current := session.GetContainers()[index]
 
-	containerIsOn := current.State == models.ContainerStateRunning
+	containerIsOn := current.State == entities.ContainerStateRunning
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(index, containerIsOn),
@@ -71,7 +73,7 @@ func (h *handler) ContainersList(ctx telebot.Context) error {
 		return ctx.Send("there is no container")
 	}
 	current := containers[0]
-	containerIsOn := current.State == models.ContainerStateRunning
+	containerIsOn := current.State == entities.ContainerStateRunning
 	return ctx.Send(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(0, containerIsOn),
@@ -82,20 +84,21 @@ func (h *handler) ContainersList(ctx telebot.Context) error {
 func (h *handler) ContainerLogs(ctx telebot.Context) error {
 	// TODO: Starting from the beginning might cause confusion in long stream of errors, we should have a navigate till to the end button.
 	userID := ctx.Chat().ID
+	session := h.session.Get(userID)
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := h.session.GetContainers(userID)[index]
+	current := session.GetContainers()[index]
 	quit := make(chan struct{})
-	h.session.SetQuitChan(userID, quit)
+	session.SetQuitChan(quit)
 	stream, err := h.docker.ContainerLogs(current.ID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
 
 	streamer := bufio.NewScanner(stream)
-	queue := models.NewQueue()
+	queue := entities.NewQueue()
 	for streamer.Scan() {
 		select {
 		case <-quit:
@@ -122,12 +125,13 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 func (h *handler) ContainerStats(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
+	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := h.session.GetContainers(userID)[index]
+	current := session.GetContainers()[index]
 	quit := make(chan struct{})
-	h.session.SetQuitChan(userID, quit)
+	session.SetQuitChan(quit)
 	stream, err := h.docker.ContainerStats(current.ID)
 	if err != nil {
 		log.Gl.Error(err.Error())
@@ -140,7 +144,7 @@ func (h *handler) ContainerStats(ctx telebot.Context) error {
 			log.Gl.Debug("end of streaming stats for user", zap.Int64("used_id", userID))
 			return nil
 		default:
-			stats := models.Stats{}
+			stats := entities.Stats{}
 			err := json.Unmarshal(streamer.Bytes(), &stats)
 			if err != nil {
 				log.Gl.Error(err.Error())
@@ -166,10 +170,11 @@ func (h *handler) ContainerStats(ctx telebot.Context) error {
 func (h *handler) ContainerStart(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
+	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := h.session.GetContainers(userID)[index]
+	current := session.GetContainers()[index]
 	if err := h.docker.ContainerStart(current.ID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(
@@ -197,10 +202,11 @@ func (h *handler) ContainerStart(ctx telebot.Context) error {
 func (h *handler) ContainerStop(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
+	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := h.session.GetContainers(userID)[index]
+	current := session.GetContainers()[index]
 	if err := h.docker.ContainerStop(current.ID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(
@@ -232,13 +238,14 @@ func (h *handler) ContainerRemoveForm(ctx telebot.Context) error {
 	ctx.Respond(&telebot.CallbackResponse{Text: "Please fill the form and press done"})
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
+	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := h.session.GetContainers(userID)[index]
-	cRemoveForm := h.session.GetContainerRemoveForm(userID)
+	current := session.GetContainers()[index]
+	cRemoveForm := session.GetContainerRemoveForm()
 	if cRemoveForm == nil {
-		cRemoveForm = h.session.SetContainerRemoveForm(userID, false, false)
+		cRemoveForm = session.SetContainerRemoveForm(false, false)
 	}
 
 	return ctx.Edit(
@@ -252,11 +259,12 @@ func (h *handler) ContainerRemoveForm(ctx telebot.Context) error {
 func (h *handler) ContainerRemoveDone(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
+	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := h.session.GetContainers(userID)[index]
-	cRemoveForm := h.session.GetContainerRemoveForm(userID)
+	current := session.GetContainers()[index]
+	cRemoveForm := session.GetContainerRemoveForm()
 
 	if err := h.docker.ContainerRemove(current.ID, cRemoveForm); err != nil {
 		log.Gl.Error(err.Error())
@@ -271,7 +279,7 @@ func (h *handler) ContainerRemoveDone(ctx telebot.Context) error {
 	}
 	current = containers[0]
 
-	containerIsOn := current.State == models.ContainerStateRunning
+	containerIsOn := current.State == entities.ContainerStateRunning
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(0, containerIsOn),
@@ -282,6 +290,7 @@ func (h *handler) ContainerRemoveDone(ctx telebot.Context) error {
 func (h *handler) ContainerRemoveForce(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
+	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(&telebot.CallbackResponse{
@@ -289,10 +298,10 @@ func (h *handler) ContainerRemoveForce(ctx telebot.Context) error {
 		})
 	}
 
-	current := h.session.GetContainers(userID)[index]
-	cRemoveForm := h.session.GetContainerRemoveForm(userID)
+	current := session.GetContainers()[index]
+	cRemoveForm := session.GetContainerRemoveForm()
 	cRemoveForm.Force = !cRemoveForm.Force
-	h.session.SetContainerRemoveForm(userID, cRemoveForm.Force, cRemoveForm.RemoveVolumes)
+	session.SetContainerRemoveForm(cRemoveForm.Force, cRemoveForm.RemoveVolumes)
 
 	return ctx.Edit(
 		msgs.FmtContainer(current),
@@ -303,6 +312,7 @@ func (h *handler) ContainerRemoveForce(ctx telebot.Context) error {
 
 func (h *handler) ContainerRemoveVolumes(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
+	session := h.session.Get(userID)
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
@@ -311,10 +321,10 @@ func (h *handler) ContainerRemoveVolumes(ctx telebot.Context) error {
 		})
 	}
 
-	current := h.session.GetContainers(userID)[index]
-	cRemoveForm := h.session.GetContainerRemoveForm(userID)
+	current := session.GetContainers()[index]
+	cRemoveForm := session.GetContainerRemoveForm()
 	cRemoveForm.RemoveVolumes = !cRemoveForm.RemoveVolumes
-	h.session.SetContainerRemoveForm(userID, cRemoveForm.Force, cRemoveForm.RemoveVolumes)
+	session.SetContainerRemoveForm(cRemoveForm.Force, cRemoveForm.RemoveVolumes)
 
 	return ctx.Edit(
 		msgs.FmtContainer(current),
@@ -329,15 +339,16 @@ func (h *handler) ContainerRename(ctx telebot.Context) error {
 	}
 	userID := ctx.Chat().ID
 	currentContainerIndex := ctx.Data()
+	session := h.session.Get(userID)
 	index, err := strconv.Atoi(currentContainerIndex)
 	if err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Send("wrong button clicked!")
 	}
-	containers := h.session.GetContainers(userID)
+	containers := session.GetContainers()
 	current := containers[index]
-	h.session.SetScene(userID, models.SceneRenameContainer)
-	h.session.SetCurrentContainer(userID, current)
+	session.SetScene(entities.SceneRenameContainer)
+	session.SetCurrentContainer(current)
 
 	return ctx.Edit(
 		msgs.ContainerNewNameInput,
@@ -348,7 +359,8 @@ func (h *handler) ContainerRename(ctx telebot.Context) error {
 
 func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	container := h.session.GetCurrentContainer(userID)
+	session := h.session.Get(userID)
+	container := session.GetCurrentContainer()
 	if container == nil {
 		return ctx.Edit(
 			"you're lost!, please /start again",
@@ -376,8 +388,9 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 	)
 }
 
-func (h *handler) updateContainersList(userID int64) []*models.Container {
+func (h *handler) updateContainersList(userID int64) []*entities.Container {
 	containers := h.docker.ContainersList()
-	h.session.SetContainers(userID, containers)
+	session := h.session.Get(userID)
+	session.SetContainers(containers)
 	return containers
 }

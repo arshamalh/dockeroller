@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/arshamalh/dockeroller/models"
+	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/tools"
 )
 
@@ -25,7 +25,7 @@ func FmtMono(input string) string {
 	).Replace(input)
 }
 
-func FmtContainer(container *models.Container) string {
+func FmtContainer(container *entities.Container) string {
 	response := strings.NewReplacer(
 		"{name}", container.Name,
 		"{image}", container.Image,
@@ -35,7 +35,7 @@ func FmtContainer(container *models.Container) string {
 	return response
 }
 
-func FmtImage(image *models.Image) string {
+func FmtImage(image *entities.Image) string {
 	response := strings.NewReplacer(
 		"{id}", image.ID,
 		"{size}", tools.SizeToHumanReadable(image.Size),
@@ -47,7 +47,7 @@ func FmtImage(image *models.Image) string {
 	return response
 }
 
-func FmtStats(stat models.Stats) string {
+func FmtStats(stat entities.Stats) string {
 	cpu_usage, memory_usage_percent := tools.StatsCalculator(stat)
 	response := strings.NewReplacer(
 		"{cpu_usage}", fmt.Sprintf("%.2f", cpu_usage),

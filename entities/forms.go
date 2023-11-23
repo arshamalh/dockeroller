@@ -1,8 +1,8 @@
-package models
+package entities
 
-type UserData struct {
-	ContainerRemoveForm *ContainerRemoveForm
-	ImageRemoveForm     *ImageRemoveForm
+type Forms struct {
+	ContainerRemove *ContainerRemoveForm
+	ImageRemove     *ImageRemoveForm
 }
 
 type ContainerRemoveForm struct {

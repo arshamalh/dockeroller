@@ -13,8 +13,9 @@ import (
 func (h *handler) ImagesList(ctx telebot.Context) error {
 	ctx.Respond()
 	userID := ctx.Chat().ID
+	session := h.session.Get(userID)
 	images := h.docker.ImagesList()
-	h.session.SetImages(userID, images)
+	session.SetImages(images)
 	current := images[0]
 	return ctx.Send(
 		msgs.FmtImage(current),
@@ -26,10 +27,11 @@ func (h *handler) ImagesList(ctx telebot.Context) error {
 func (h *handler) ImagesNavBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
+	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	images := h.session.GetImages(userID)
+	images := session.GetImages()
 	if len(images) == 0 {
 		return ctx.Respond(&telebot.CallbackResponse{Text: "There is either no images or you should run /images again!"})
 	}
@@ -48,14 +50,15 @@ func (h *handler) ImagesNavBtn(ctx telebot.Context) error {
 
 func (h *handler) ImagesBackBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	if quitChan := h.session.GetQuitChan(userID); quitChan != nil {
+	session := h.session.Get(userID)
+	if quitChan := session.GetQuitChan(); quitChan != nil {
 		quitChan <- struct{}{}
 	}
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := h.session.GetImages(userID)[index]
+	current := session.GetImages()[index]
 	return ctx.Edit(
 		msgs.FmtImage(current),
 		keyboards.ImagesList(index),

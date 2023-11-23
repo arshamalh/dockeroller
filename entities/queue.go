@@ -1,4 +1,4 @@
-package models
+package entities
 
 import "fmt"
 
@@ -25,19 +25,6 @@ func NewQueue() *Queue {
 	return &Queue{}
 }
 
-func (q *Queue) isZeroOrOneNode() (bool, *Node) {
-	if q.Length == 0 {
-		return true, nil
-	} else if q.Length == 1 {
-		value := q.head
-		q.head = nil
-		q.tail = nil
-		q.Length--
-		return true, value
-	}
-	return false, nil
-}
-
 func (q *Queue) Push(value string) *Queue {
 	new_node := newNode(value, nil)
 	if q.Length == 0 {
@@ -50,14 +37,23 @@ func (q *Queue) Push(value string) *Queue {
 	return q
 }
 
-func (q *Queue) Pop() *Node {
-	if ok, node := q.isZeroOrOneNode(); ok {
-		return node
+// Removes a Node from the queue and returns it,
+// Returns an error if there is no available node
+func (q *Queue) Pop() (string, error) {
+	if q.Length == 0 {
+		return "", fmt.Errorf("no node available to pop")
 	}
+
 	node := q.head
-	q.head = q.head.Next
+	if q.Length == 1 {
+		q.head = nil
+		q.tail = nil
+	} else {
+		q.head = q.head.Next
+	}
+
 	q.Length--
-	return node
+	return node.Value, nil
 }
 
 func (q *Queue) String() string {

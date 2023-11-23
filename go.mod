@@ -30,6 +30,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/cobra v1.7.0
+	github.com/stretchr/testify v1.8.4 // indirect
 	go.uber.org/zap v1.26.0
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
 	golang.org/x/sys v0.1.0 // indirect

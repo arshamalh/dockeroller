@@ -6,7 +6,7 @@ import (
 
 	"github.com/arshamalh/dockeroller/docker"
 	"github.com/arshamalh/dockeroller/log"
-	"github.com/arshamalh/dockeroller/repo/ephemeral"
+	"github.com/arshamalh/dockeroller/session"
 	tpkg "github.com/arshamalh/dockeroller/telegram"
 	"github.com/arshamalh/dockeroller/telegram/handlers"
 	"github.com/joho/godotenv"
@@ -60,7 +60,7 @@ func startTelegram(docker docker.Docker, token string, whitelistedIDs []int64) {
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	session := ephemeral.New()
+	session := session.New()
 	handlers.Register(bot, docker, session)
 	// Middlewares
 	bot.Use(middleware.Whitelist(whitelistedIDs...))

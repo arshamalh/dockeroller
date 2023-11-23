@@ -2,8 +2,7 @@ package handlers
 
 import (
 	"github.com/arshamalh/dockeroller/docker"
-	"github.com/arshamalh/dockeroller/models"
-	"github.com/arshamalh/dockeroller/repo"
+	sessionPkg "github.com/arshamalh/dockeroller/session"
 	"github.com/arshamalh/dockeroller/telegram/btns"
 	"gopkg.in/telebot.v3"
 )
@@ -11,11 +10,11 @@ import (
 type handler struct {
 	docker  docker.Docker
 	bot     *telebot.Bot
-	session repo.Session
+	session sessionPkg.Session
 	// log
 }
 
-func Register(bot *telebot.Bot, docker docker.Docker, session repo.Session) {
+func Register(bot *telebot.Bot, docker docker.Docker, session sessionPkg.Session) {
 	h := &handler{
 		docker:  docker,
 		bot:     bot,
@@ -23,7 +22,7 @@ func Register(bot *telebot.Bot, docker docker.Docker, session repo.Session) {
 	}
 
 	// Command handlers
-	h.bot.Handle("/start", StartHandler)
+	h.bot.Handle("/start", h.StartHandler)
 	h.bot.Handle("/containers", h.ContainersList)
 	h.bot.Handle("/images", h.ImagesList)
 
@@ -56,14 +55,4 @@ func Register(bot *telebot.Bot, docker docker.Docker, session repo.Session) {
 	h.bot.Handle(btns.ImgRmPruneCh.Key(), h.ImageRemovePruneChildren)
 	h.bot.Handle(btns.ImgRmDone.Key(), h.ImageRemoveDone)
 	h.bot.Handle(btns.ImgTag.Key(), h.ImageTag)
-}
-
-// Set a scene for the specified user
-func (h *handler) EnterScene(userID int64, scene models.Scene) {
-	h.session.SetScene(userID, scene)
-}
-
-// Returns the current scene for the specified user
-func (h *handler) Scene(userID int64) models.Scene {
-	return h.session.GetScene(userID)
 }

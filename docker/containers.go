@@ -4,35 +4,35 @@ import (
 	"context"
 	"io"
 
-	"github.com/arshamalh/dockeroller/models"
+	"github.com/arshamalh/dockeroller/entities"
 	"github.com/docker/docker/api/types"
 )
 
-func (d *docker) ContainersList() (containers []*models.Container) {
+func (d *docker) ContainersList() (containers []*entities.Container) {
 	raw_containers, _ := d.cli.ContainerList(context.TODO(), types.ContainerListOptions{All: true})
 	for _, raw_cont := range raw_containers {
-		containers = append(containers, &models.Container{
+		containers = append(containers, &entities.Container{
 			ID:     raw_cont.ID,
 			Name:   raw_cont.Names[0],
 			Image:  raw_cont.Image,
 			Status: raw_cont.Status,
-			State:  models.ContainerState(raw_cont.State),
+			State:  entities.ContainerState(raw_cont.State),
 		})
 	}
 	return
 }
 
-func (d *docker) GetContainer(containerID string) (*models.Container, error) {
+func (d *docker) GetContainer(containerID string) (*entities.Container, error) {
 	container, err := d.cli.ContainerInspect(context.TODO(), containerID)
 	if err != nil {
 		return nil, err
 	}
-	return &models.Container{
+	return &entities.Container{
 		ID:     container.ID,
 		Name:   container.Name,
 		Image:  container.Image,
 		Status: container.State.Status,
-		State:  models.ContainerState(container.State.Status),
+		State:  entities.ContainerState(container.State.Status),
 	}, nil
 }
 
@@ -59,7 +59,7 @@ func (d *docker) ContainerStop(containerID string) error {
 	return d.cli.ContainerStop(context.TODO(), containerID, nil)
 }
 
-func (d *docker) ContainerRemove(containerID string, removeForm *models.ContainerRemoveForm) error {
+func (d *docker) ContainerRemove(containerID string, removeForm *entities.ContainerRemoveForm) error {
 	return d.cli.ContainerRemove(context.TODO(), containerID, types.ContainerRemoveOptions{
 		RemoveVolumes: removeForm.RemoveVolumes,
 		Force:         removeForm.Force,
