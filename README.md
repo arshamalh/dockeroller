@@ -9,7 +9,11 @@ Dockeroller (docker controller) is an open-source project giving you the power t
 > Dockeroller is in Alpha phase and not yet production-ready
 
 ## How to use
-First of all, you should make a bot (it's name and username doesn't matter) with [bot father](https://t.me/BotFather), copy its `token`, then you can run the CLI using:
+First make sure you installed go version 1.19 or above then run:
+````bash
+go install github.com/arshamalh/dockeroller@main
+````
+Then you should make a bot (it's name and username doesn't matter) with [bot father](https://t.me/BotFather), copy its `token`, then you can run the CLI using:
 ```bash
 dockeroller start --token "<YOUR-TOKEN>"
 ```
