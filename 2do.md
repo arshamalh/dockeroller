@@ -13,7 +13,7 @@
 - [x] Logs streaming
 - [x] Add image handlers, next, prev, back
     - [x] Image size should be in human readable units
-    - [ ] Image ID should be shorted (trimmed)
+    - [x] Image ID should be shorted (trimmed)
     - [ ] Image name and tag should be separated???
     - [ ] Add Image status and created at
     - [ ] Image run, rename, remove commands 
