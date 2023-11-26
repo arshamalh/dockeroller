@@ -3,7 +3,6 @@ package docker
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/arshamalh/dockeroller/entities"
@@ -14,11 +13,8 @@ func (d *docker) ImagesList() (images []*entities.Image) {
 	rawImages, _ := d.cli.ImageList(context.TODO(), types.ImageListOptions{All: true})
 	for _, rawImg := range rawImages {
 		status := d.getImageStatus(context.TODO(), rawImg)
-		// In docker the result of `docker image -q` give us
-		// images ids with 12 characters long
-		imageID := strings.TrimPrefix(rawImg.ID, "sha256:")[0:12]
 		images = append(images, &entities.Image{
-			ID:        imageID,
+			ID:        rawImg.ID,
 			Size:      rawImg.Size,
 			Tags:      rawImg.RepoTags,
 			Status:    entities.ImageStatus(status),

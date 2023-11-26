@@ -25,17 +25,17 @@ Enter new image tag:
 `
 
 	Container = `
-''Container name: '' {name},
-''Used Image:     '' {image},
-''Status:         '' {status}
+''Name:   '' {name},
+''Image:  '' {image},
+''Status: '' {status}
 `
 
 	Image = `
-''ID:   '' {id},
-''Size: '' {size},
-''Tags: '' {tags}
-''Status: '' {status}
-''Created at: '' {created_at}
+''ID:      '' ''{id1}''...{id2},
+''Size:    '' {size},
+''Tags:    '' {tags}
+''Status:  '' {status}
+''Created: '' {created_at}
 `
 
 	Stat = `
