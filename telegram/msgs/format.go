@@ -36,8 +36,14 @@ func FmtContainer(container *entities.Container) string {
 }
 
 func FmtImage(image *entities.Image) string {
+	// In docker the result of `docker image -q` give us
+	// images ids with 12 characters long
+	imageIDTrimmed := strings.TrimPrefix(image.ID, "sha256:")
+	imageIDPart1 := imageIDTrimmed[0:12]
+	imageIDPart2 := imageIDTrimmed[len(imageIDTrimmed)-4:]
 	response := strings.NewReplacer(
-		"{id}", image.ID,
+		"{id1}", imageIDPart1,
+		"{id2}", imageIDPart2,
 		"{size}", tools.SizeToHumanReadable(image.Size),
 		"{tags}", fmt.Sprint(image.Tags),
 		"{status}", fmt.Sprint(image.Status),

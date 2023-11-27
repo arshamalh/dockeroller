@@ -10,15 +10,15 @@ import (
 )
 
 func (d *docker) ImagesList() (images []*entities.Image) {
-	raw_images, _ := d.cli.ImageList(context.TODO(), types.ImageListOptions{All: true})
-	for _, raw_img := range raw_images {
-		status := d.getImageStatus(context.TODO(), raw_img)
+	rawImages, _ := d.cli.ImageList(context.TODO(), types.ImageListOptions{All: true})
+	for _, rawImg := range rawImages {
+		status := d.getImageStatus(context.TODO(), rawImg)
 		images = append(images, &entities.Image{
-			ID:        raw_img.ID,
-			Size:      raw_img.Size,
-			Tags:      raw_img.RepoTags,
+			ID:        rawImg.ID,
+			Size:      rawImg.Size,
+			Tags:      rawImg.RepoTags,
 			Status:    entities.ImageStatus(status),
-			CreatedAt: fmt.Sprint(time.Unix(raw_img.Created, 0).Format("2006-01-02 15:04:05")),
+			CreatedAt: fmt.Sprint(time.Unix(rawImg.Created, 0).Format("2006-01-02 15:04:05")),
 		})
 	}
 	return
