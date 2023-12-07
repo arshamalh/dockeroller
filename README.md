@@ -42,6 +42,9 @@ We will also add a password mechanism soon.
     - [x] Remove
     - [x] Tagging
 
+## Note for developers and contributors
+We cache containers and images list, and update this cache after "next, back, list, final rename, final remove" but we don't update this cache after "remove form buttons clicking", because we don't want you to face another container after clicking to "Force: false" button.
+
 ## Some Screen Shots
 <img src="assets/containerslist_started_one.jpeg" alt="dockeroller containers list started one" width="500"/>
 <img src="assets/containerslist_stopped_one.jpeg" alt="dockeroller containers list stopped one" width="500"/>

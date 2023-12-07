@@ -4,7 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
@@ -112,11 +111,4 @@ func (h *handler) ImageRemovePruneChildren(ctx telebot.Context) error {
 		keyboards.ImageRemove(index, imgRmForm.Force, imgRmForm.PruneChildren),
 		telebot.ModeMarkdownV2,
 	)
-}
-
-func (h *handler) updateImagesList(userID int64) []*entities.Image {
-	images := h.docker.ImagesList()
-	session := h.session.Get(userID)
-	session.SetImages(images)
-	return images
 }

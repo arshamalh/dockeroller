@@ -19,12 +19,12 @@ import (
 
 func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	session := h.session.Get(userID)
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	containers := session.GetContainers()
+
+	containers := h.updateContainersList(userID)
 	if len(containers) == 0 {
 		return ctx.Respond(
 			&telebot.CallbackResponse{
