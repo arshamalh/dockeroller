@@ -4,8 +4,8 @@ type ImageStatus string
 
 const (
 	ImageStatusInUse          ImageStatus = "In use"
-	ImageStatusUnUsed         ImageStatus = "Un used"
-	ImageStatusUnUsedDangling ImageStatus = "Un used (dangling)"
+	ImageStatusUnUsed         ImageStatus = "Unused"
+	ImageStatusUnUsedDangling ImageStatus = "Dangling"
 )
 
 type Image struct {
@@ -14,4 +14,6 @@ type Image struct {
 	Tags      []string
 	Status    ImageStatus
 	CreatedAt string
+	// A list of Containers using this image
+	UsedBy []*Container
 }

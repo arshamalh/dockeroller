@@ -7,17 +7,19 @@ import (
 
 	"github.com/arshamalh/dockeroller/entities"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 )
 
 func (d *docker) ImagesList() (images []*entities.Image) {
 	rawImages, _ := d.cli.ImageList(context.TODO(), types.ImageListOptions{All: true})
 	for _, rawImg := range rawImages {
-		status := d.getImageStatus(context.TODO(), rawImg)
+		status, containers := d.getImageStatus(context.TODO(), rawImg)
 		images = append(images, &entities.Image{
 			ID:        rawImg.ID,
 			Size:      rawImg.Size,
 			Tags:      rawImg.RepoTags,
 			Status:    entities.ImageStatus(status),
+			UsedBy:    containers,
 			CreatedAt: fmt.Sprint(time.Unix(rawImg.Created, 0).Format("2006-01-02 15:04:05")),
 		})
 	}
@@ -38,36 +40,22 @@ func (d *docker) ImageRemove(ctx context.Context, imageID string, force, pruneCh
 	return err
 }
 
-func (d *docker) getImageStatus(ctx context.Context, image types.ImageSummary) (status string) {
+// Returns whether an image is dangling or used by containers,
+// returns a list of ContainerIDs as the second argument, or nil if the Image is dangling or unused
+func (d *docker) getImageStatus(ctx context.Context, image types.ImageSummary) (entities.ImageStatus, []*entities.Container) {
 	if len(image.RepoTags) == 0 {
-		status = string(entities.ImageStatusUnUsedDangling)
-		return
+		return entities.ImageStatusUnUsedDangling, nil
 	}
 
+	// Compatibility with older docker daemons
 	if image.RepoTags[0] == "<none>:<none>" {
-		status = string(entities.ImageStatusUnUsedDangling)
-		return
+		return entities.ImageStatusUnUsedDangling, nil
 	}
-	containers, _ := d.cli.ContainerList(ctx, types.ContainerListOptions{})
+
+	containers := d.ContainersList(ctx, filters.NewArgs(filters.Arg("ancestor", image.ID)))
 	if len(containers) == 0 {
-		status = string(entities.ImageStatusUnUsed)
-		return
-	}
-	newImgs := make(map[string][]string)
-	for _, cont := range containers {
-		if cont.ImageID != image.ID {
-			status = string(entities.ImageStatusUnUsed)
-		} else {
-			newSlice := newImgs[image.ID]
-			if newSlice == nil {
-				newSlice = make([]string, 0)
-			}
-			newSlice = append(newSlice, cont.ID)
-			newImgs[image.ID] = newSlice
-
-			status = string(entities.ImageStatusInUse)
-		}
+		return entities.ImageStatusUnUsed, nil
 	}
 
-	return
+	return entities.ImageStatusInUse, containers
 }

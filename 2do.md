@@ -19,11 +19,18 @@
     - [ ] Image run, rename, remove commands 
     - [ ] Error on line 78 if log file about ">" character should be resolved
 - [ ] Add ability to run containers out of images
-- [ ] Debug container stats as it sounds to have problem in some cases
 - [ ] Ability to filter Containers and Images
+- [ ] Gaining at least 50% test coverage
+- [ ] Debug container stats as it sounds to have problem in some cases
 - [ ] Remove previous messages buttons (when they are not required)
 - [ ] Handle callback queries to show messages, e.g. for remove.
     - Helper: &telebot.CallbackResponse{Text: fmt.Sprint(ctx.Data(), "removed!")}
+- [ ] Incompatibility between github.com/docker/docker and github.com/moby/moby
+- [ ] If the image is in use, include a button to show the containers using it, back button should get back to the list of Images
+- [ ] Containers list using filters filters.Args should use a better alternative as All is not a filter and should be an argument for containers list
+
+- [ ] Add Slack
+- [ ] Add discord
 
 - [ ] Load yaml config
 - [ ] Implement web hook and let the user decide for it.

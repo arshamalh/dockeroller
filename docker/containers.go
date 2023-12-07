@@ -6,10 +6,16 @@ import (
 
 	"github.com/arshamalh/dockeroller/entities"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 )
 
-func (d *docker) ContainersList() (containers []*entities.Container) {
-	raw_containers, _ := d.cli.ContainerList(context.TODO(), types.ContainerListOptions{All: true})
+func (d *docker) ContainersList(ctx context.Context, filters filters.Args) (containers []*entities.Container) {
+	raw_containers, _ := d.cli.ContainerList(ctx,
+		types.ContainerListOptions{
+			All:     true,
+			Filters: filters,
+		},
+	)
 	for _, raw_cont := range raw_containers {
 		containers = append(containers, &entities.Container{
 			ID:     raw_cont.ID,

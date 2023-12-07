@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"strconv"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
 	"github.com/arshamalh/dockeroller/tools"
+	"github.com/docker/docker/api/types/filters"
 	"go.uber.org/zap"
 	"gopkg.in/telebot.v3"
 )
@@ -22,16 +24,16 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	conts := session.GetContainers()
-	if len(conts) == 0 {
+	containers := session.GetContainers()
+	if len(containers) == 0 {
 		return ctx.Respond(
 			&telebot.CallbackResponse{
 				Text: "There is either no containers or you should run /containers again!",
 			},
 		)
 	}
-	index = tools.Indexer(index, len(conts))
-	current := conts[index]
+	index = tools.Indexer(index, len(containers))
+	current := containers[index]
 
 	containerIsOn := current.State == entities.ContainerStateRunning
 	err = ctx.Edit(
@@ -389,7 +391,7 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 }
 
 func (h *handler) updateContainersList(userID int64) []*entities.Container {
-	containers := h.docker.ContainersList()
+	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
 	session := h.session.Get(userID)
 	session.SetContainers(containers)
 	return containers

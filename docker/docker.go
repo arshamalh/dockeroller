@@ -6,12 +6,13 @@ import (
 
 	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/moby/moby/client"
 )
 
 type Docker interface {
 	GetContainer(containerID string) (*entities.Container, error)
-	ContainersList() []*entities.Container
+	ContainersList(ctx context.Context, filters filters.Args) (containers []*entities.Container)
 	ContainerLogs(containerID string) (io.ReadCloser, error)
 	ContainerStats(containerID string) (io.ReadCloser, error)
 	ContainerStart(containerID string) error
