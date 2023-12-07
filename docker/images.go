@@ -41,9 +41,18 @@ func (d *docker) ImageRemove(ctx context.Context, imageID string, force, pruneCh
 func (d *docker) getImageStatus(ctx context.Context, image types.ImageSummary) (status string) {
 	if len(image.RepoTags) == 0 {
 		status = string(entities.ImageStatusUnUsedDangling)
+		return
 	}
 
+	if image.RepoTags[0] == "<none>:<none>" {
+		status = string(entities.ImageStatusUnUsedDangling)
+		return
+	}
 	containers, _ := d.cli.ContainerList(ctx, types.ContainerListOptions{})
+	if len(containers) == 0 {
+		status = string(entities.ImageStatusUnUsed)
+		return
+	}
 	newImgs := make(map[string][]string)
 	for _, cont := range containers {
 		if cont.ImageID != image.ID {
