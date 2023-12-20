@@ -56,6 +56,10 @@ func (d *UserData) GetContainers() []*entities.Container {
 	return d.Containers
 }
 
+func (d *UserData) GetContainer(index int) *entities.Container {
+	return d.Containers[index]
+}
+
 func (d *UserData) SetContainers(containers []*entities.Container) {
 	d.Containers = containers
 }

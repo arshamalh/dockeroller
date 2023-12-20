@@ -25,3 +25,7 @@ type Container struct {
 func (c Container) String() string {
 	return fmt.Sprintf("%s - %s - %s - image: %s", c.ID, c.Name, c.Status, c.Image)
 }
+
+func (c Container) IsOn() bool {
+	return c.State == ContainerStateRunning
+}

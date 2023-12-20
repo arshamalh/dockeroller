@@ -4,7 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
@@ -16,15 +15,16 @@ import (
 func (h *handler) ContainersList(ctx telebot.Context) error {
 	ctx.Respond()
 	userID := ctx.Chat().ID
-	containers := h.updateContainersList(userID)
+	session := h.session.Get(userID)
+	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
+	session.SetContainers(containers)
 	if len(containers) == 0 {
 		return ctx.Send("there is no container")
 	}
 	current := containers[0]
-	containerIsOn := current.State == entities.ContainerStateRunning
 	return ctx.Send(
 		msgs.FmtContainer(current),
-		keyboards.ContainersList(0, containerIsOn),
+		keyboards.ContainersList(0, current.IsOn()),
 		telebot.ModeMarkdownV2,
 	)
 }
@@ -36,7 +36,9 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 	}
 
-	containers := h.updateContainersList(userID)
+	session := h.session.Get(userID)
+	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
+	session.SetContainers(containers)
 	if len(containers) == 0 {
 		return ctx.Respond(
 			&telebot.CallbackResponse{
@@ -47,16 +49,15 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	index = tools.Indexer(index, len(containers))
 	current := containers[index]
 
-	containerIsOn := current.State == entities.ContainerStateRunning
-	err = ctx.Edit(
-		msgs.FmtContainer(current),
-		keyboards.ContainersList(index, containerIsOn),
-		telebot.ModeMarkdownV2,
-	)
+	err = ctx.Respond()
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	return ctx.Respond()
+	return ctx.Edit(
+		msgs.FmtContainer(current),
+		keyboards.ContainersList(index, current.IsOn()),
+		telebot.ModeMarkdownV2,
+	)
 }
 
 func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
@@ -69,12 +70,11 @@ func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := session.GetContainers()[index]
+	current := session.GetContainer(index)
 
-	containerIsOn := current.State == entities.ContainerStateRunning
 	return ctx.Edit(
 		msgs.FmtContainer(current),
-		keyboards.ContainersList(index, containerIsOn),
+		keyboards.ContainersList(index, current.IsOn()),
 		telebot.ModeMarkdownV2,
 	)
 }
@@ -86,7 +86,7 @@ func (h *handler) ContainerStart(ctx telebot.Context) error {
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := session.GetContainers()[index]
+	current := session.GetContainer(index)
 	if err := h.docker.ContainerStart(current.ID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(
@@ -118,7 +118,7 @@ func (h *handler) ContainerStop(ctx telebot.Context) error {
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := session.GetContainers()[index]
+	current := session.GetContainer(index)
 	if err := h.docker.ContainerStop(current.ID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(
@@ -142,11 +142,4 @@ func (h *handler) ContainerStop(ctx telebot.Context) error {
 		keyboards.ContainersList(index, false),
 		telebot.ModeMarkdownV2,
 	)
-}
-
-func (h *handler) updateContainersList(userID int64) []*entities.Container {
-	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
-	session := h.session.Get(userID)
-	session.SetContainers(containers)
-	return containers
 }

@@ -22,7 +22,7 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := session.GetContainers()[index]
+	current := session.GetContainer(index)
 	quit := make(chan struct{})
 	session.SetQuitChan(quit)
 	stream, err := h.docker.ContainerLogs(current.ID)
@@ -62,7 +62,7 @@ func (h *handler) ContainerStats(ctx telebot.Context) error {
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
-	current := session.GetContainers()[index]
+	current := session.GetContainer(index)
 	quit := make(chan struct{})
 	session.SetQuitChan(quit)
 	stream, err := h.docker.ContainerStats(current.ID)
