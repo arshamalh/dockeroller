@@ -14,7 +14,7 @@ import (
 // This handler doesn't remove the container,
 // it's just a form for setting the options of removing a container in the later "Done" step.
 func (h *handler) ContainerRemoveForm(ctx telebot.Context) error {
-	ctx.Respond(&telebot.CallbackResponse{Text: "Please fill the form and press done"})
+	ctx.Respond(msgs.FillTheFormAndPressDone)
 	userID := ctx.Chat().ID
 	index, err := strconv.Atoi(ctx.Data())
 	session := h.session.Get(userID)
@@ -47,14 +47,15 @@ func (h *handler) ContainerRemoveDone(ctx telebot.Context) error {
 
 	if err := h.docker.ContainerRemove(current.ID, cRemoveForm); err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond(&telebot.CallbackResponse{Text: "Unable to remove container"})
+		return ctx.Respond(msgs.UnableToRemoveContainer)
 	}
 
-	ctx.Respond(&telebot.CallbackResponse{Text: "Container removed successfully"})
+	ctx.Respond(msgs.ContainerRemovedSuccessfully)
 
 	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
 	session.SetContainers(containers)
 	if len(containers) == 0 {
+		// TODO: if container removed and there is no container, get back to the start menu, no extra action needed
 		return ctx.Send("there is no container")
 	}
 	current = containers[0]
@@ -72,9 +73,7 @@ func (h *handler) ContainerRemoveForce(ctx telebot.Context) error {
 	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond(&telebot.CallbackResponse{
-			Text: "Invalid button 🤔️️️️️️",
-		})
+		return ctx.Respond(msgs.InvalidButton)
 	}
 
 	current := session.GetContainer(index)
@@ -95,9 +94,7 @@ func (h *handler) ContainerRemoveVolumes(ctx telebot.Context) error {
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond(&telebot.CallbackResponse{
-			Text: "Invalid button 🤔️️️️️️",
-		})
+		return ctx.Respond(msgs.InvalidButton)
 	}
 
 	current := session.GetContainer(index)
