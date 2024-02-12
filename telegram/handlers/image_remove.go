@@ -18,10 +18,9 @@ func (h *handler) ImageRemoveForm(ctx telebot.Context) error {
 	index, err := strconv.Atoi(ctx.Data())
 	if err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond(&telebot.CallbackResponse{Text: "wrong button clicked!"})
+		return ctx.Respond(msgs.InvalidButton)
 	}
-	// Informational Response
-	ctx.Respond(&telebot.CallbackResponse{Text: "Please fill the form and press done"})
+	ctx.Respond(msgs.FillTheFormAndPressDone)
 
 	current := session.GetImages()[index]
 	imgRmForm := session.GetImageRemoveForm()
@@ -49,10 +48,10 @@ func (h *handler) ImageRemoveDone(ctx telebot.Context) error {
 
 	if err := h.docker.ImageRemove(context.TODO(), current.ID, imgRmForm.Force, imgRmForm.PruneChildren); err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond(&telebot.CallbackResponse{Text: "Unable to remove image"})
+		return ctx.Respond()
 	}
 
-	ctx.Respond(&telebot.CallbackResponse{Text: "Image removed successfully"})
+	ctx.Respond(msgs.ImageRemovedSuccessfully)
 
 	images := h.updateImagesList(userID)
 	if len(images) == 0 {
@@ -73,9 +72,7 @@ func (h *handler) ImageRemoveForce(ctx telebot.Context) error {
 	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond(&telebot.CallbackResponse{
-			Text: "Invalid button 🤔️️️️️️",
-		})
+		return ctx.Respond(msgs.InvalidButton)
 	}
 
 	current := session.GetImages()[index]
@@ -96,9 +93,7 @@ func (h *handler) ImageRemovePruneChildren(ctx telebot.Context) error {
 	session := h.session.Get(userID)
 	if err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond(&telebot.CallbackResponse{
-			Text: "Invalid button 🤔️️️️️️",
-		})
+		return ctx.Respond(msgs.InvalidButton)
 	}
 
 	current := session.GetImages()[index]

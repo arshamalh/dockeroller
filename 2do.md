@@ -32,6 +32,16 @@
 - [ ] Add Slack
 - [ ] Add discord
 
+- [ ] Add github actions security check with gosec (should not exit with status 1 in case of non-critical issues)
+    ```yaml
+    - name: Gosec Security Scanner
+      run: |
+        export PATH=$PATH:$(go env GOPATH)/bin
+        go install github.com/securego/gosec/v2/cmd/gosec@latest
+        echo "[gosec]\n  severity = \"medium\"\n" > .gosec.toml
+        gosec ./...
+    ```
+
 - [ ] Load yaml config
 - [ ] Implement web hook and let the user decide for it.
 - [ ] Make it ready to be installed using go install, apt install, etc.
