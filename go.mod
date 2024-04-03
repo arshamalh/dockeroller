@@ -17,6 +17,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
+	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
@@ -27,6 +28,7 @@ require (
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
+	github.com/go-faker/faker/v4 v4.2.0
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/moby/moby v20.10.18+incompatible
 	github.com/opencontainers/go-digest v1.0.0 // indirect

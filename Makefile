@@ -13,3 +13,7 @@ build-docker: # Build the docker image
 
 sample-docker: # Run docker with sample start command
 	docker run --rm ${name}:${version} start --token="something"
+
+gen:
+	go generate ./...
+	
