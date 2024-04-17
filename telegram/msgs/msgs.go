@@ -42,6 +42,6 @@ Enter new image tag:
 ''CPU Usage:    '' {cpu_usage} %
 ''Online CPUs:  '' {online_cpus}
 ''Memory Usage: '' {memory_usage} ({memory_usage%} %)
-''Avaiable Mem: '' {avaiable_memory}
+''Available Mem: '' {available_memory}
 `
 )
