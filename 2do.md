@@ -46,3 +46,7 @@
 - [ ] Implement web hook and let the user decide for it.
 - [ ] Make it ready to be installed using go install, apt install, etc.
 - [ ] Should we replace docker by contract and use it directly as we will never replace it? Not actually, as we may want to plug a mock instead or wrap its functions
+- [ ] `dockeroller/docker/docker.go:29` We should get Docker ENVs from user in case of not default
+- [ ] Add linter (golangci-linter to actions)
+- [ ] Pass ID to session like the way dongi works, or maybe better!
+
