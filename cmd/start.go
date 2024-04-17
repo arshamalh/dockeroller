@@ -61,7 +61,7 @@ func startTelegram(docker docker.Docker, token string, whitelistedIDs []int64) {
 		log.Gl.Error(err.Error())
 	}
 	session := session.New()
-	handlers.Register(bot, docker, session)
+	handlers.NewHandler(bot, docker, session)
 	// Middlewares
 	bot.Use(middleware.Whitelist(whitelistedIDs...))
 	// TODO: Disabled logger middleware for now.

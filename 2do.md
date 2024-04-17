@@ -32,7 +32,21 @@
 - [ ] Add Slack
 - [ ] Add discord
 
+- [ ] Add github actions security check with gosec (should not exit with status 1 in case of non-critical issues)
+    ```yaml
+    - name: Gosec Security Scanner
+      run: |
+        export PATH=$PATH:$(go env GOPATH)/bin
+        go install github.com/securego/gosec/v2/cmd/gosec@latest
+        echo "[gosec]\n  severity = \"medium\"\n" > .gosec.toml
+        gosec ./...
+    ```
+
 - [ ] Load yaml config
 - [ ] Implement web hook and let the user decide for it.
 - [ ] Make it ready to be installed using go install, apt install, etc.
 - [ ] Should we replace docker by contract and use it directly as we will never replace it? Not actually, as we may want to plug a mock instead or wrap its functions
+- [ ] `dockeroller/docker/docker.go:29` We should get Docker ENVs from user in case of not default
+- [ ] Add linter (golangci-linter to actions)
+- [ ] Pass ID to session like the way dongi works, or maybe better!
+

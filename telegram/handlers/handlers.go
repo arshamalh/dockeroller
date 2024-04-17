@@ -14,7 +14,7 @@ type handler struct {
 	// log
 }
 
-func Register(bot *telebot.Bot, docker docker.Docker, session sessionPkg.Session) {
+func NewHandler(bot *telebot.Bot, docker docker.Docker, session sessionPkg.Session) *handler {
 	h := &handler{
 		docker:  docker,
 		bot:     bot,
@@ -55,4 +55,6 @@ func Register(bot *telebot.Bot, docker docker.Docker, session sessionPkg.Session
 	h.bot.Handle(btns.ImgRmPruneCh.Key(), h.ImageRemovePruneChildren)
 	h.bot.Handle(btns.ImgRmDone.Key(), h.ImageRemoveDone)
 	h.bot.Handle(btns.ImgTag.Key(), h.ImageTag)
+
+	return h
 }

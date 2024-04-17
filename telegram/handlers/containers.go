@@ -13,13 +13,12 @@ import (
 )
 
 func (h *handler) ContainersList(ctx telebot.Context) error {
-	ctx.Respond()
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
 	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
 	session.SetContainers(containers)
 	if len(containers) == 0 {
-		return ctx.Send("there is no container")
+		return ctx.Respond(msgs.NoContainer)
 	}
 	current := containers[0]
 	return ctx.Send(
@@ -40,11 +39,7 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
 	session.SetContainers(containers)
 	if len(containers) == 0 {
-		return ctx.Respond(
-			&telebot.CallbackResponse{
-				Text: "There is either no containers or you should run /containers again!",
-			},
-		)
+		return ctx.Respond(msgs.NoContainer)
 	}
 	index = tools.Indexer(index, len(containers))
 	current := containers[index]
@@ -89,20 +84,12 @@ func (h *handler) ContainerStart(ctx telebot.Context) error {
 	current := session.GetContainer(index)
 	if err := h.docker.ContainerStart(current.ID); err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond(
-			&telebot.CallbackResponse{
-				Text: "We cannot start the container!",
-			},
-		)
+		return ctx.Respond(msgs.CannotStartTheContainer)
 	}
 
 	current, err = h.docker.GetContainer(current.ID)
 	if err != nil {
-		return ctx.Respond(
-			&telebot.CallbackResponse{
-				Text: "Container started, but we're not able to show current state.",
-			},
-		)
+		return ctx.Respond(msgs.StartedButUnavailableCurrentState)
 	}
 	return ctx.Edit(
 		msgs.FmtContainer(current),
@@ -121,20 +108,12 @@ func (h *handler) ContainerStop(ctx telebot.Context) error {
 	current := session.GetContainer(index)
 	if err := h.docker.ContainerStop(current.ID); err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond(
-			&telebot.CallbackResponse{
-				Text: "We cannot stop the container!",
-			},
-		)
+		return ctx.Respond(msgs.CannotStopTheContainer)
 	}
 
 	current, err = h.docker.GetContainer(current.ID)
 	if err != nil {
-		return ctx.Respond(
-			&telebot.CallbackResponse{
-				Text: "Container stopped, but we're not able to show current state.",
-			},
-		)
+		return ctx.Respond(msgs.StoppedButUnavailableCurrentState)
 	}
 
 	return ctx.Edit(
