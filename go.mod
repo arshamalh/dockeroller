@@ -4,6 +4,7 @@ go 1.21.0
 
 require (
 	github.com/docker/docker v20.10.17+incompatible
+	github.com/jaswdr/faker/v2 v2.1.0
 	github.com/joho/godotenv v1.4.0
 	go.uber.org/mock v0.3.0
 	gopkg.in/telebot.v3 v3.0.0
@@ -12,9 +13,6 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/k0kubun/pp v3.0.1+incompatible // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/moby/term v0.5.0 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

@@ -44,8 +44,7 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	index = tools.Indexer(index, len(containers))
 	current := containers[index]
 
-	err = ctx.Respond()
-	if err != nil {
+	if err := ctx.Respond(); err != nil {
 		log.Gl.Error(err.Error())
 	}
 	return ctx.Edit(
