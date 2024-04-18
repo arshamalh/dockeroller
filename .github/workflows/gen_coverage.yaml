@@ -1,8 +1,6 @@
 name: Generate Test Coverage
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -12,7 +10,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        go: [1.20, 1.21]
+        go: ['1.20', '1.21']
     steps:
     - uses: actions/checkout@v2
 
