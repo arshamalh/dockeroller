@@ -3,7 +3,14 @@ name: main
 on:
   push:
     branches: [main]
-
+    paths-ignore:
+      - 'README.md'
+      - .github/workflows/test.yaml
+      - .github/workflows/gen_coverage.yaml
+      - assets
+      - Makefile
+  workflow_dispatch:
+  
 jobs:
   build-and-release:
     runs-on: ubuntu-20.04

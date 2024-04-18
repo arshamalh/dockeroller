@@ -4,9 +4,25 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
+      - .github/workflows/main.yaml
+      - .github/workflows/gen_coverage.yaml
+      - assets
+      - Makefile
   pull_request:
+    types: 
+      - opened
+      - reopened
+      - review_requested
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
+      - .github/workflows/main.yaml
+      - .github/workflows/gen_coverage.yaml
+      - assets
+      - Makefile
   workflow_dispatch:
 
 jobs:
