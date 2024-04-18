@@ -1,12 +1,13 @@
 name: Generate Test Coverage
 
-on: [pull_request, push, workflow_dispatch]
+on: 
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     env:
-        GO111MODULE: on
+      GO111MODULE: on
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -21,9 +22,7 @@ jobs:
     - name: Gather dependencies
       run: go mod download
     - name: Test
-      run: |
-        go test -v -coverpkg ./... -cover ./... -coverprofile coverage.out
-        go tool cover -func coverage.out -o coverage.out 
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4.0.1
       with:
