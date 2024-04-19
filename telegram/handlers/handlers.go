@@ -11,7 +11,6 @@ type handler struct {
 	docker  docker.Docker
 	bot     *telebot.Bot
 	session sessionPkg.Session
-	// log
 }
 
 func NewHandler(bot *telebot.Bot, docker docker.Docker, session sessionPkg.Session) *handler {

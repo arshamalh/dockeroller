@@ -49,4 +49,14 @@
 - [ ] `dockeroller/docker/docker.go:29` We should get Docker ENVs from user in case of not default
 - [ ] Add linter (golangci-linter to actions)
 - [ ] Pass ID to session like the way dongi works, or maybe better!
+- [ ] What happens if we have a job that permanently pull images list and containers list from docker and we use that instead of using the one we already have?
 
+----- 
+In Telegram, we have a few UI components,
+for example, Lists and Forms
+Also we have some events that we can have actions on,
++ OnCallback, OnPhoto, OnQuery, etc.
++ Simple texts (handle through scene&question management)
++ ReplyMarkup keyboards text
+
+We also need a session to store user state

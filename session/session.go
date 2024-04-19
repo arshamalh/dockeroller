@@ -1,7 +1,5 @@
 package session
 
-import "github.com/arshamalh/dockeroller/entities"
-
 type Session interface {
 	Get(userID int64) *UserData
 }
@@ -25,10 +23,7 @@ func (e *session) Get(userID int64) *UserData {
 
 func (e *session) init(userID int64) {
 	e.userData[userID] = &UserData{
-		UserID:          userID,
-		Scene:           0,
-		CurrentQuestion: 0,
-		Containers:      make([]*entities.Container, 0),
-		Images:          make([]*entities.Image, 0),
+		userID: userID,
+		scene:  0,
 	}
 }

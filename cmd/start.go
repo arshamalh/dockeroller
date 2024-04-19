@@ -9,6 +9,7 @@ import (
 	"github.com/arshamalh/dockeroller/session"
 	tpkg "github.com/arshamalh/dockeroller/telegram"
 	"github.com/arshamalh/dockeroller/telegram/handlers"
+	"github.com/arshamalh/dockeroller/telegram/middlewares"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"gopkg.in/telebot.v3"
@@ -65,7 +66,7 @@ func startTelegram(docker docker.Docker, token string, whitelistedIDs []int64) {
 	// Middlewares
 	bot.Use(middleware.Whitelist(whitelistedIDs...))
 	// TODO: Disabled logger middleware for now.
-	// bot.Use(LoggerMiddleware(log.Gl))
+	bot.Use(middlewares.LoggerMiddleware(log.Gl))
 	if err := bot.SetCommands(tpkg.Commands); err != nil {
 		log.Gl.Error(err.Error())
 	}

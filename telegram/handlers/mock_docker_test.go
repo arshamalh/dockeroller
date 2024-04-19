@@ -42,97 +42,98 @@ func (m *MockDocker) EXPECT() *MockDockerMockRecorder {
 }
 
 // ContainerLogs mocks base method.
-func (m *MockDocker) ContainerLogs(arg0 string) (io.ReadCloser, error) {
+func (m *MockDocker) ContainerLogs(arg0 context.Context, arg1 string) (io.ReadCloser, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ContainerLogs", arg0)
+	ret := m.ctrl.Call(m, "ContainerLogs", arg0, arg1)
 	ret0, _ := ret[0].(io.ReadCloser)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ContainerLogs indicates an expected call of ContainerLogs.
-func (mr *MockDockerMockRecorder) ContainerLogs(arg0 any) *gomock.Call {
+func (mr *MockDockerMockRecorder) ContainerLogs(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerLogs", reflect.TypeOf((*MockDocker)(nil).ContainerLogs), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerLogs", reflect.TypeOf((*MockDocker)(nil).ContainerLogs), arg0, arg1)
 }
 
 // ContainerRemove mocks base method.
-func (m *MockDocker) ContainerRemove(arg0 string, arg1 *entities.ContainerRemoveForm) error {
+func (m *MockDocker) ContainerRemove(arg0 context.Context, arg1 string, arg2 *entities.ContainerRemoveForm) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ContainerRemove", arg0, arg1)
+	ret := m.ctrl.Call(m, "ContainerRemove", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ContainerRemove indicates an expected call of ContainerRemove.
-func (mr *MockDockerMockRecorder) ContainerRemove(arg0, arg1 any) *gomock.Call {
+func (mr *MockDockerMockRecorder) ContainerRemove(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerRemove", reflect.TypeOf((*MockDocker)(nil).ContainerRemove), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerRemove", reflect.TypeOf((*MockDocker)(nil).ContainerRemove), arg0, arg1, arg2)
 }
 
 // ContainerRename mocks base method.
-func (m *MockDocker) ContainerRename(arg0, arg1 string) error {
+func (m *MockDocker) ContainerRename(arg0 context.Context, arg1, arg2 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ContainerRename", arg0, arg1)
+	ret := m.ctrl.Call(m, "ContainerRename", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ContainerRename indicates an expected call of ContainerRename.
-func (mr *MockDockerMockRecorder) ContainerRename(arg0, arg1 any) *gomock.Call {
+func (mr *MockDockerMockRecorder) ContainerRename(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerRename", reflect.TypeOf((*MockDocker)(nil).ContainerRename), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerRename", reflect.TypeOf((*MockDocker)(nil).ContainerRename), arg0, arg1, arg2)
 }
 
 // ContainerStart mocks base method.
-func (m *MockDocker) ContainerStart(arg0 string) error {
+func (m *MockDocker) ContainerStart(arg0 context.Context, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ContainerStart", arg0)
+	ret := m.ctrl.Call(m, "ContainerStart", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ContainerStart indicates an expected call of ContainerStart.
-func (mr *MockDockerMockRecorder) ContainerStart(arg0 any) *gomock.Call {
+func (mr *MockDockerMockRecorder) ContainerStart(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStart", reflect.TypeOf((*MockDocker)(nil).ContainerStart), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStart", reflect.TypeOf((*MockDocker)(nil).ContainerStart), arg0, arg1)
 }
 
 // ContainerStats mocks base method.
-func (m *MockDocker) ContainerStats(arg0 string) (io.ReadCloser, error) {
+func (m *MockDocker) ContainerStats(arg0 context.Context, arg1 string) (io.ReadCloser, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ContainerStats", arg0)
+	ret := m.ctrl.Call(m, "ContainerStats", arg0, arg1)
 	ret0, _ := ret[0].(io.ReadCloser)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ContainerStats indicates an expected call of ContainerStats.
-func (mr *MockDockerMockRecorder) ContainerStats(arg0 any) *gomock.Call {
+func (mr *MockDockerMockRecorder) ContainerStats(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStats", reflect.TypeOf((*MockDocker)(nil).ContainerStats), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStats", reflect.TypeOf((*MockDocker)(nil).ContainerStats), arg0, arg1)
 }
 
 // ContainerStop mocks base method.
-func (m *MockDocker) ContainerStop(arg0 string) error {
+func (m *MockDocker) ContainerStop(arg0 context.Context, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ContainerStop", arg0)
+	ret := m.ctrl.Call(m, "ContainerStop", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ContainerStop indicates an expected call of ContainerStop.
-func (mr *MockDockerMockRecorder) ContainerStop(arg0 any) *gomock.Call {
+func (mr *MockDockerMockRecorder) ContainerStop(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStop", reflect.TypeOf((*MockDocker)(nil).ContainerStop), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStop", reflect.TypeOf((*MockDocker)(nil).ContainerStop), arg0, arg1)
 }
 
 // ContainersList mocks base method.
-func (m *MockDocker) ContainersList(arg0 context.Context, arg1 filters.Args) []*entities.Container {
+func (m *MockDocker) ContainersList(arg0 context.Context, arg1 filters.Args) ([]*entities.Container, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ContainersList", arg0, arg1)
 	ret0, _ := ret[0].([]*entities.Container)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // ContainersList indicates an expected call of ContainersList.
@@ -142,18 +143,18 @@ func (mr *MockDockerMockRecorder) ContainersList(arg0, arg1 any) *gomock.Call {
 }
 
 // GetContainer mocks base method.
-func (m *MockDocker) GetContainer(arg0 string) (*entities.Container, error) {
+func (m *MockDocker) GetContainer(arg0 context.Context, arg1 string) (*entities.Container, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetContainer", arg0)
+	ret := m.ctrl.Call(m, "GetContainer", arg0, arg1)
 	ret0, _ := ret[0].(*entities.Container)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetContainer indicates an expected call of GetContainer.
-func (mr *MockDockerMockRecorder) GetContainer(arg0 any) *gomock.Call {
+func (mr *MockDockerMockRecorder) GetContainer(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContainer", reflect.TypeOf((*MockDocker)(nil).GetContainer), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContainer", reflect.TypeOf((*MockDocker)(nil).GetContainer), arg0, arg1)
 }
 
 // ImageRemove mocks base method.
@@ -185,15 +186,16 @@ func (mr *MockDockerMockRecorder) ImageTag(arg0, arg1, arg2 any) *gomock.Call {
 }
 
 // ImagesList mocks base method.
-func (m *MockDocker) ImagesList() []*entities.Image {
+func (m *MockDocker) ImagesList(arg0 context.Context, arg1 filters.Args) ([]*entities.Image, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ImagesList")
+	ret := m.ctrl.Call(m, "ImagesList", arg0, arg1)
 	ret0, _ := ret[0].([]*entities.Image)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // ImagesList indicates an expected call of ImagesList.
-func (mr *MockDockerMockRecorder) ImagesList() *gomock.Call {
+func (mr *MockDockerMockRecorder) ImagesList(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImagesList", reflect.TypeOf((*MockDocker)(nil).ImagesList))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImagesList", reflect.TypeOf((*MockDocker)(nil).ImagesList), arg0, arg1)
 }

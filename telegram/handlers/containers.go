@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
@@ -13,43 +12,45 @@ import (
 )
 
 func (h *handler) ContainersList(ctx telebot.Context) error {
-	userID := ctx.Chat().ID
-	session := h.session.Get(userID)
-	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
-	session.SetContainers(containers)
+	containers, err := h.docker.ContainersList(context.TODO(), filters.Args{})
+	if err != nil {
+		log.Gl.Error(err.Error())
+		return ctx.Respond(msgs.UnableToFetchContainers)
+	}
 	if len(containers) == 0 {
 		return ctx.Respond(msgs.NoContainer)
 	}
 	current := containers[0]
+	h.session.Get(ctx.Chat().ID).SetCurrentContainer(current, 0)
+
 	return ctx.Send(
 		msgs.FmtContainer(current),
-		keyboards.ContainersList(0, current.IsOn()),
+		keyboards.ContainersList(current.ID, 0, current.IsOn()),
 		telebot.ModeMarkdownV2,
 	)
 }
 
 func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
-	userID := ctx.Chat().ID
-	index, err := strconv.Atoi(ctx.Data())
+	containers, err := h.docker.ContainersList(context.TODO(), filters.Args{})
 	if err != nil {
-		log.Gl.Error(err.Error())
+		return ctx.Respond(msgs.UnableToFetchContainers)
 	}
 
-	session := h.session.Get(userID)
-	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
-	session.SetContainers(containers)
 	if len(containers) == 0 {
 		return ctx.Respond(msgs.NoContainer)
 	}
+
+	userID := ctx.Chat().ID
+	session := h.session.Get(userID)
+	index := tools.Str2Int(ctx.Data())
 	index = tools.Indexer(index, len(containers))
 	current := containers[index]
+	session.SetCurrentContainer(current, index)
 
-	if err := ctx.Respond(); err != nil {
-		log.Gl.Error(err.Error())
-	}
+	h.EmptyResponder(ctx)
 	return ctx.Edit(
 		msgs.FmtContainer(current),
-		keyboards.ContainersList(index, current.IsOn()),
+		keyboards.ContainersList(current.ID, index, current.IsOn()),
 		telebot.ModeMarkdownV2,
 	)
 }
@@ -60,64 +61,63 @@ func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 	if quitChan := session.GetQuitChan(); quitChan != nil {
 		quitChan <- struct{}{}
 	}
-	index, err := strconv.Atoi(ctx.Data())
-	if err != nil {
-		log.Gl.Error(err.Error())
-	}
-	current := session.GetContainer(index)
 
+	current, index := session.GetCurrentContainer()
+	if current == nil {
+		containers, err := h.docker.ContainersList(context.TODO(), filters.Args{})
+		if err != nil {
+			log.Gl.Error(err.Error())
+			ctx.Respond(msgs.UnableToFetchContainers)
+			return h.StartHandler(ctx)
+		}
+		if len(containers) == 0 {
+			ctx.Respond(msgs.NoContainer)
+			return h.StartHandler(ctx)
+		}
+		current = containers[0]
+		session.SetCurrentContainer(current, index)
+	}
+
+	h.EmptyResponder(ctx)
 	return ctx.Edit(
 		msgs.FmtContainer(current),
-		keyboards.ContainersList(index, current.IsOn()),
+		keyboards.ContainersList(current.ID, index, current.IsOn()),
 		telebot.ModeMarkdownV2,
 	)
 }
 
 func (h *handler) ContainerStart(ctx telebot.Context) error {
-	userID := ctx.Chat().ID
-	index, err := strconv.Atoi(ctx.Data())
-	session := h.session.Get(userID)
-	if err != nil {
-		log.Gl.Error(err.Error())
-	}
-	current := session.GetContainer(index)
-	if err := h.docker.ContainerStart(current.ID); err != nil {
+	containerID := ctx.Data()
+	if err := h.docker.ContainerStart(context.TODO(), containerID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(msgs.CannotStartTheContainer)
 	}
 
-	current, err = h.docker.GetContainer(current.ID)
-	if err != nil {
-		return ctx.Respond(msgs.StartedButUnavailableCurrentState)
-	}
+	userID := ctx.Chat().ID
+	session := h.session.Get(userID)
+	current, index := session.GetCurrentContainer()
+
 	return ctx.Edit(
 		msgs.FmtContainer(current),
-		keyboards.ContainersList(index, true),
+		keyboards.ContainersList(current.ID, index, current.IsOn()),
 		telebot.ModeMarkdownV2,
 	)
 }
 
 func (h *handler) ContainerStop(ctx telebot.Context) error {
-	userID := ctx.Chat().ID
-	index, err := strconv.Atoi(ctx.Data())
-	session := h.session.Get(userID)
-	if err != nil {
-		log.Gl.Error(err.Error())
-	}
-	current := session.GetContainer(index)
-	if err := h.docker.ContainerStop(current.ID); err != nil {
+	containerID := ctx.Data()
+	if err := h.docker.ContainerStop(context.TODO(), containerID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(msgs.CannotStopTheContainer)
 	}
 
-	current, err = h.docker.GetContainer(current.ID)
-	if err != nil {
-		return ctx.Respond(msgs.StoppedButUnavailableCurrentState)
-	}
+	userID := ctx.Chat().ID
+	session := h.session.Get(userID)
+	current, index := session.GetCurrentContainer()
 
 	return ctx.Edit(
 		msgs.FmtContainer(current),
-		keyboards.ContainersList(index, false),
+		keyboards.ContainersList(current.ID, index, current.IsOn()),
 		telebot.ModeMarkdownV2,
 	)
 }

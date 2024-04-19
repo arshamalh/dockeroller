@@ -137,7 +137,7 @@ func fakeContainers(howMany int) []*entities.Container {
 	containersList := make([]*entities.Container, howMany)
 
 	for i := range containersList {
-		ranInt := faker.IntBetween(0, len(allContainerStates)-1)
+		randInt := faker.IntBetween(0, len(allContainerStates)-1)
 		containersList[i] = &entities.Container{
 			ID:     faker.UUID().V4(),
 			Status: faker.Lorem().Sentence(10),
@@ -147,7 +147,7 @@ func fakeContainers(howMany int) []*entities.Container {
 				faker.Address().City(), faker.Float32(2, 10, 99),
 				faker.Blood().Name(), faker.Float32(2, 10, 99),
 			),
-			State: allContainerStates[ranInt],
+			State: allContainerStates[randInt],
 		}
 	}
 	return containersList

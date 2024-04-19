@@ -2,14 +2,16 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
+	"github.com/arshamalh/dockeroller/tools"
 	"go.uber.org/zap"
 	"gopkg.in/telebot.v3"
 )
@@ -18,14 +20,13 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 	// TODO: Starting from the beginning might cause confusion in long stream of errors, we should have a navigate till to the end button.
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
-	index, err := strconv.Atoi(ctx.Data())
-	if err != nil {
-		log.Gl.Error(err.Error())
-	}
-	current := session.GetContainer(index)
+	rawData := strings.Split(ctx.Data(), "|")
+	containerID := rawData[0]
+	index := tools.Str2Int(rawData[1])
+
 	quit := make(chan struct{})
 	session.SetQuitChan(quit)
-	stream, err := h.docker.ContainerLogs(current.ID)
+	stream, err := h.docker.ContainerLogs(context.TODO(), containerID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
@@ -57,15 +58,15 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 
 func (h *handler) ContainerStats(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	index, err := strconv.Atoi(ctx.Data())
 	session := h.session.Get(userID)
-	if err != nil {
-		log.Gl.Error(err.Error())
-	}
-	current := session.GetContainer(index)
+
+	rawData := strings.Split(ctx.Data(), "|")
+	containerID := rawData[0]
+	index := tools.Str2Int(rawData[1])
+
 	quit := make(chan struct{})
 	session.SetQuitChan(quit)
-	stream, err := h.docker.ContainerStats(current.ID)
+	stream, err := h.docker.ContainerStats(context.TODO(), containerID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}

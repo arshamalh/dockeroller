@@ -3,123 +3,71 @@ package session
 import "github.com/arshamalh/dockeroller/entities"
 
 type UserData struct {
-	UserID           int64
-	Scene            entities.Scene
-	CurrentQuestion  entities.Question
-	Containers       []*entities.Container
-	Images           []*entities.Image
-	CurrentContainer *entities.Container
-	CurrentImage     *entities.Image
-	Forms            *entities.Forms
-	QuitChan         chan struct{}
+	userID                int64
+	scene                 entities.Scene
+	currentContainer      *entities.Container
+	currentContainerIndex int
+	currentImage          *entities.Image
+	currentImageIndex     int
+	forms                 *entities.Forms
+	quitChan              chan struct{}
+}
+
+func (d *UserData) ID() int64 {
+	return d.userID
 }
 
 func (d *UserData) SetScene(scene entities.Scene) {
-	d.Scene = scene
-	switch scene {
-	case entities.SceneRenameContainer:
-		d.CurrentQuestion = entities.QNewContainerName
-	case entities.SceneRenameImage:
-		d.CurrentQuestion = entities.QNewImageName
-	}
+	d.scene = scene
 }
 
 func (d *UserData) GetScene() entities.Scene {
-	return d.Scene
+	return d.scene
 }
 
-func (d *UserData) SetCurrentQuestion(question entities.Question) {
-	d.CurrentQuestion = question
+func (d *UserData) SetCurrentContainer(container *entities.Container, index int) {
+	if container.RemoveForm == nil {
+		container.RemoveForm = &entities.ContainerRemoveForm{}
+	}
+	d.currentContainer = container
+	d.currentContainerIndex = index
 }
 
-func (d *UserData) GetCurrentQuestion() entities.Question {
-	return d.CurrentQuestion
+func (d *UserData) GetCurrentContainer() (*entities.Container, int) {
+	return d.currentContainer, d.currentContainerIndex
 }
 
-func (d *UserData) SetCurrentContainer(container *entities.Container) {
-	d.CurrentContainer = container
+func (d *UserData) SetCurrentImage(image *entities.Image, index int) {
+	d.currentImage = image
+	d.currentImageIndex = index
 }
 
-func (d *UserData) GetCurrentContainer() *entities.Container {
-	return d.CurrentContainer
-}
-
-func (d *UserData) SetCurrentImage(image *entities.Image) {
-	d.CurrentImage = image
-}
-
-func (d *UserData) GetCurrentImage() *entities.Image {
-	return d.CurrentImage
-}
-
-func (d *UserData) GetContainers() []*entities.Container {
-	return d.Containers
-}
-
-func (d *UserData) GetContainer(index int) *entities.Container {
-	return d.Containers[index]
-}
-
-func (d *UserData) SetContainers(containers []*entities.Container) {
-	d.Containers = containers
+func (d *UserData) GetCurrentImage() (*entities.Image, int) {
+	return d.currentImage, d.currentImageIndex
 }
 
 func (d *UserData) SetQuitChan(quitChan chan struct{}) {
-	d.QuitChan = quitChan
+	d.quitChan = quitChan
 }
 
 func (d *UserData) GetQuitChan() chan<- struct{} {
-	return d.QuitChan
-}
-
-func (d *UserData) GetImages() []*entities.Image {
-	return d.Images
-}
-
-func (d *UserData) SetImages(images []*entities.Image) {
-	d.Images = images
-}
-
-func (d *UserData) GetForms() *entities.Forms {
-	return d.Forms
-}
-
-func (d *UserData) SetForms(forms *entities.Forms) {
-	d.Forms = forms
-}
-
-func (d *UserData) SetContainerRemoveForm(force, removeVolumes bool) *entities.ContainerRemoveForm {
-	if d.Forms == nil {
-		d.Forms = &entities.Forms{
-			ContainerRemove: &entities.ContainerRemoveForm{},
-		}
-	}
-	d.Forms.ContainerRemove.Force = force
-	d.Forms.ContainerRemove.RemoveVolumes = removeVolumes
-	return d.Forms.ContainerRemove
-}
-
-func (d *UserData) GetContainerRemoveForm() *entities.ContainerRemoveForm {
-	if d.Forms != nil && d.Forms.ContainerRemove != nil {
-		return d.Forms.ContainerRemove
-	}
-	return nil
+	return d.quitChan
 }
 
 func (d *UserData) SetImageRemoveForm(force, pruneChildren bool) *entities.ImageRemoveForm {
-	if d.Forms == nil {
-		d.Forms = &entities.Forms{
+	if d.forms == nil {
+		d.forms = &entities.Forms{
 			ImageRemove: &entities.ImageRemoveForm{},
 		}
 	}
-	d.Forms.ImageRemove.Force = force
-	d.Forms.ImageRemove.PruneChildren = pruneChildren
-	return d.Forms.ImageRemove
+	d.forms.ImageRemove.Force = force
+	d.forms.ImageRemove.PruneChildren = pruneChildren
+	return d.forms.ImageRemove
 }
 
 func (d *UserData) GetImageRemoveForm() *entities.ImageRemoveForm {
-	if d.Forms != nil && d.Forms.ImageRemove != nil {
-		return d.Forms.ImageRemove
+	if d.forms != nil && d.forms.ImageRemove != nil {
+		return d.forms.ImageRemove
 	}
-	return nil
+	return &entities.ImageRemoveForm{}
 }

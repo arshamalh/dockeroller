@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"context"
-	"strconv"
 
+	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
+	"go.uber.org/zap"
 	"gopkg.in/telebot.v3"
 )
 
@@ -15,22 +16,13 @@ import (
 func (h *handler) ImageRemoveForm(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
-	index, err := strconv.Atoi(ctx.Data())
-	if err != nil {
-		log.Gl.Error(err.Error())
-		return ctx.Respond(msgs.InvalidButton)
-	}
+	current, _ := session.GetCurrentImage()
 	ctx.Respond(msgs.FillTheFormAndPressDone)
-
-	current := session.GetImages()[index]
-	imgRmForm := session.GetImageRemoveForm()
-	if imgRmForm == nil {
-		imgRmForm = session.SetImageRemoveForm(false, false)
-	}
+	irf := current.RemoveForm
 
 	return ctx.Edit(
 		msgs.FmtImage(current),
-		keyboards.ImageRemove(index, imgRmForm.Force, imgRmForm.PruneChildren),
+		keyboards.ImageRemove(current.ID, irf.Force, irf.PruneChildren),
 		telebot.ModeMarkdownV2,
 	)
 }
@@ -39,71 +31,53 @@ func (h *handler) ImageRemoveForm(ctx telebot.Context) error {
 func (h *handler) ImageRemoveDone(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
-	index, err := strconv.Atoi(ctx.Data())
-	if err != nil {
-		log.Gl.Error(err.Error())
-	}
-	current := session.GetImages()[index]
-	imgRmForm := session.GetImageRemoveForm()
+	imageID := ctx.Data()
+	current, _ := session.GetCurrentImage()
+	irf := current.RemoveForm
 
-	if err := h.docker.ImageRemove(context.TODO(), current.ID, imgRmForm.Force, imgRmForm.PruneChildren); err != nil {
+	if current.ID[:entities.LEN_IMG_TRIM] != imageID {
+		log.Gl.Info("Removing another image when current is different", zap.String("current", current.String()))
+		return ctx.Respond(msgs.UnableToRemoveContainer)
+	}
+
+	if err := h.docker.ImageRemove(context.TODO(), imageID, irf.Force, irf.PruneChildren); err != nil {
 		log.Gl.Error(err.Error())
-		return ctx.Respond()
+		return ctx.Respond(msgs.UnableToRemoveImage)
 	}
 
 	ctx.Respond(msgs.ImageRemovedSuccessfully)
 
-	images := h.updateImagesList(userID)
-	if len(images) == 0 {
-		return ctx.Send("there is no image")
-	}
-	current = images[0]
-
-	return ctx.Edit(
-		msgs.FmtImage(current),
-		keyboards.ImagesList(0),
-		telebot.ModeMarkdownV2,
-	)
+	return h.ImagesList(ctx)
 }
 
 func (h *handler) ImageRemoveForce(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	index, err := strconv.Atoi(ctx.Data())
+	imageID := ctx.Data()
 	session := h.session.Get(userID)
-	if err != nil {
-		log.Gl.Error(err.Error())
-		return ctx.Respond(msgs.InvalidButton)
-	}
 
-	current := session.GetImages()[index]
+	current, _ := session.GetCurrentImage()
 	imgRmForm := session.GetImageRemoveForm()
 	imgRmForm.Force = !imgRmForm.Force
 	session.SetImageRemoveForm(imgRmForm.Force, imgRmForm.PruneChildren)
 
 	return ctx.Edit(
 		msgs.FmtImage(current),
-		keyboards.ImageRemove(index, imgRmForm.Force, imgRmForm.PruneChildren),
+		keyboards.ImageRemove(imageID, imgRmForm.Force, imgRmForm.PruneChildren),
 		telebot.ModeMarkdownV2,
 	)
 }
 
 func (h *handler) ImageRemovePruneChildren(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	index, err := strconv.Atoi(ctx.Data())
 	session := h.session.Get(userID)
-	if err != nil {
-		log.Gl.Error(err.Error())
-		return ctx.Respond(msgs.InvalidButton)
-	}
-
-	current := session.GetImages()[index]
+	current, _ := session.GetCurrentImage()
 	imgRmForm := session.GetImageRemoveForm()
 	imgRmForm.PruneChildren = !imgRmForm.PruneChildren
 	session.SetImageRemoveForm(imgRmForm.Force, imgRmForm.PruneChildren)
 
 	return ctx.Edit(
 		msgs.FmtImage(current),
-		keyboards.ImageRemove(index, imgRmForm.Force, imgRmForm.PruneChildren),
+		keyboards.ImageRemove(current.ID, imgRmForm.Force, imgRmForm.PruneChildren),
 		telebot.ModeMarkdownV2,
 	)
 }

@@ -15,11 +15,12 @@ const (
 )
 
 type Container struct {
-	ID     string
-	Name   string
-	Image  string
-	Status string
-	State  ContainerState
+	ID         string
+	Name       string
+	Image      string
+	Status     string
+	State      ContainerState
+	RemoveForm *ContainerRemoveForm
 }
 
 func (c Container) String() string {

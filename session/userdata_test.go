@@ -1,61 +1,38 @@
 package session_test
 
 import (
+	"fmt"
+	"testing"
+	"time"
+
 	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/session"
-	"github.com/go-faker/faker/v4"
+	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestUserData(t *testing.T) {
 	assert := assert.New(t)
-	t.Run("set and get containers", func(t *testing.T) {
-		s := session.New()
-		userData := s.Get(2)
-		fakeContainers := newFakeContainers()
-
-		userData.SetContainers(fakeContainers)
-		userContainers := userData.GetContainers()
-
-		assert.NotNil(userContainers)
-		for _, userContainer := range userContainers {
-			assert.NotNil(userContainer)
-		}
-	})
 
 	t.Run("set and get current container", func(t *testing.T) {
 		s := session.New()
 		userData := s.Get(2)
-		fakeContainers := newFakeContainers()
+		fakeContainers := fakeContainers(1)
 
-		userData.SetCurrentContainer(fakeContainers[1])
-		userCurrentContainer := userData.GetCurrentContainer()
+		userData.SetCurrentContainer(fakeContainers[0], 0)
+		userCurrentContainer, index := userData.GetCurrentContainer()
 
 		assert.NotNil(userCurrentContainer)
-	})
-
-	t.Run("set and get images", func(t *testing.T) {
-		s := session.New()
-		userData := s.Get(2)
-		fakeImages := newFakeImages()
-
-		userData.SetImages(fakeImages)
-		userImages := userData.GetImages()
-
-		assert.NotNil(userImages)
-		for _, userImage := range userImages {
-			assert.NotNil(userImage)
-		}
+		assert.Equal(0, index)
 	})
 
 	t.Run("set and get current image", func(t *testing.T) {
 		s := session.New()
 		userData := s.Get(2)
-		fakeImages := newFakeImages()
+		fakeImages := fakeImages(3)
 
-		userData.SetCurrentImage(fakeImages[1])
-		userCurrentImage := userData.GetCurrentImage()
+		userData.SetCurrentImage(fakeImages[1], 1)
+		userCurrentImage, _ := userData.GetCurrentImage()
 
 		assert.NotNil(userCurrentImage)
 	})
@@ -66,44 +43,57 @@ func TestUserData(t *testing.T) {
 
 		userData.SetScene(entities.SceneRenameImage)
 		scene := userData.GetScene()
-
 		assert.NotNil(scene)
-		assert.Equal(userData.CurrentQuestion, entities.QNewImageName)
 
 		userData.SetScene(entities.SceneRenameContainer)
 		scene = userData.GetScene()
-
 		assert.NotNil(scene)
-		assert.Equal(userData.CurrentQuestion, entities.QNewContainerName)
 	})
 }
 
-func newFakeContainers() []*entities.Container {
-	var containers []*entities.Container
-	for i := 0; i < 3; i++ {
-		containers = append(containers, &entities.Container{
-			ID:     faker.UUIDDigit(),
-			Name:   faker.Word(),
-			State:  entities.ContainerStateRunning,
-			Image:  faker.Word(),
-			Status: faker.Word(),
-		})
+func fakeContainers(howMany int) []*entities.Container {
+	faker := faker.New()
+	allContainerStates := []entities.ContainerState{
+		entities.ContainerStateCreated,
+		entities.ContainerStateRunning,
+		entities.ContainerStateDead,
+		entities.ContainerStateExited,
+		entities.ContainerStatePaused,
 	}
 
-	return containers
+	containersList := make([]*entities.Container, howMany)
+
+	for i := range containersList {
+		randInt := faker.IntBetween(0, len(allContainerStates)-1)
+		containersList[i] = &entities.Container{
+			ID:     faker.UUID().V4(),
+			Status: faker.Lorem().Sentence(10),
+			Name:   faker.Person().FirstName(),
+			Image: fmt.Sprintf(
+				"%s:%f-%s%f",
+				faker.Address().City(), faker.Float32(2, 10, 99),
+				faker.Blood().Name(), faker.Float32(2, 10, 99),
+			),
+			State: allContainerStates[randInt],
+		}
+	}
+	return containersList
 }
 
-func newFakeImages() []*entities.Image {
-	var images []*entities.Image
-	for i := 0; i < 3; i++ {
-		images = append(images, &entities.Image{
-			ID:        faker.UUIDDigit(),
-			Size:      12,
-			Tags:      []string{faker.Word(), faker.WORD},
-			Status:    entities.ImageStatusInUse,
-			CreatedAt: faker.TIMESTAMP,
-		})
-	}
+func fakeImages(howMany int) []*entities.Image {
+	faker := faker.New()
 
-	return images
+	imagesList := make([]*entities.Image, howMany)
+
+	for i := range imagesList {
+		imagesList[i] = &entities.Image{
+			ID: faker.UUID().V4(),
+			// TODO: image status is enum
+			Status:    entities.ImageStatus(faker.Lorem().Sentence(10)),
+			Size:      faker.Int64(),
+			CreatedAt: faker.Time().RFC1123(time.Now()),
+			UsedBy:    fakeContainers(3),
+		}
+	}
+	return imagesList
 }

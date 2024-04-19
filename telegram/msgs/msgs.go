@@ -24,6 +24,12 @@ Enter new container name:
 Enter new image tag:
 `
 
+	InvalidImageTag = `
+invalid tag, tags should be:
+- all lower case
+- with no space
+`
+
 	Container = `
 ''Name:   '' {name},
 ''Image:  '' {image},
