@@ -10,7 +10,7 @@ import (
 
 // Monospace font is enabled by ` charater that is not supported in Go multiline string literals
 // So we should format it using ” and replacing them.
-// characters ()_-.>=< are also reserved by telegram and we will replace them with their escaped ones.
+// characters ()_-.><{}=+ are also reserved by telegram and we will replace them with their escaped ones.
 func FmtMono(input string) string {
 	return strings.NewReplacer(
 		"''", "`",
@@ -22,6 +22,9 @@ func FmtMono(input string) string {
 		"=", "\\=",
 		"<", "\\<",
 		">", "\\>",
+		"+", "\\+",
+		"{", "\\{",
+		"}", "\\}",
 	).Replace(input)
 }
 

@@ -45,6 +45,9 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 		)
 	}
 
+	container.Name = newName
+	session.SetCurrentContainer(container, index)
+
 	return ctx.Send(
 		msgs.FmtContainerRenamed(container.Name, newName),
 		keyboards.ContainerBack(index),

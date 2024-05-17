@@ -60,7 +60,7 @@ func startTelegram(docker docker.Docker, token string, whitelistedIDs []int64) {
 		Token:     token,
 		Poller:    &telebot.LongPoller{Timeout: 10 * time.Second},
 		ParseMode: telebot.ModeMarkdownV2,
-		Client:    &http.Client{Timeout: entities.CLIENT_TIMEOUT_SECONDS * time.Second},
+		Client:    &http.Client{Timeout: entities.CLIENT_TIMEOUT},
 	})
 	if err != nil {
 		log.Gl.Error(err.Error())

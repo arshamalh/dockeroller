@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/arshamalh/dockeroller/entities"
@@ -26,6 +27,7 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 	stream, err := h.docker.ContainerLogs(context.TODO(), containerID)
 	if err != nil {
 		log.Gl.Error(err.Error())
+		return ctx.Respond(msgs.NoLogsAvailable)
 	}
 
 	streamer := bufio.NewScanner(stream)
@@ -33,21 +35,24 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 	for streamer.Scan() {
 		select {
 		case <-quit:
-			return nil
+			return ctx.Respond(msgs.FinishingTheLogsStream)
 		default:
-			newMsg := streamer.Text()
-			queue.Push(newMsg)
-			if queue.Length > 10 { // TODO: 10 should not be hard-coded
-				queue.Pop()
-			}
-
-			// Omitted error by purpose (the error is just about not modified message because of repetitive content)
-			ctx.Edit(
-				queue.String(),
-				keyboards.ContainerBack(index),
-			)
-			time.Sleep(entities.LOGS_PULL_INTERVAL)
 		}
+		newMsg := streamer.Text()
+		queue.Push(newMsg)
+		if queue.Length > entities.LOGS_QUEUE_LEN {
+			queue.Pop()
+		}
+
+		// Omitted error by purpose (the error is just about not modified message because of repetitive content)
+		err := ctx.Edit(
+			msgs.FmtMono(queue.String()),
+			keyboards.ContainerBack(index),
+		)
+		if err != nil && !errors.Is(err, telebot.ErrMessageNotModified) {
+			log.Gl.Error(err.Error())
+		}
+		time.Sleep(entities.LOGS_PULL_INTERVAL)
 	}
 	return ctx.Respond()
 }
@@ -62,32 +67,35 @@ func (h *handler) ContainerStats(ctx telebot.Context) error {
 	stream, err := h.docker.ContainerStats(context.TODO(), containerID)
 	if err != nil {
 		log.Gl.Error(err.Error())
+		return ctx.Respond(msgs.NoStatsAvailable)
 	}
+
 	streamer := bufio.NewScanner(stream)
 	latestMsg := ""
+
 	for streamer.Scan() {
 		select {
 		case <-quit:
 			log.Gl.Debug("end of streaming stats for user", zap.Int64("used_id", userID))
-			return nil
+			return ctx.Respond(msgs.FinishingTheStatsStream)
 		default:
-			stats := entities.Stats{}
-			err := json.Unmarshal(streamer.Bytes(), &stats)
-			if err != nil {
+		}
+		stats := entities.Stats{}
+		err := json.Unmarshal(streamer.Bytes(), &stats)
+		if err != nil {
+			log.Gl.Error(err.Error())
+		}
+
+		if newMsg := msgs.FmtStats(stats); newMsg != latestMsg {
+			err := ctx.Edit(
+				newMsg, keyboards.ContainerBack(index),
+			)
+			if err != nil && !errors.Is(err, telebot.ErrMessageNotModified) {
 				log.Gl.Error(err.Error())
 			}
-
-			if newMsg := msgs.FmtStats(stats); newMsg != latestMsg {
-				err := ctx.Edit(
-					newMsg, keyboards.ContainerBack(index),
-				)
-				if err != nil {
-					log.Gl.Error(err.Error())
-				}
-				latestMsg = newMsg
-			}
-			time.Sleep(entities.STATES_PULL_INTERVAL)
+			latestMsg = newMsg
 		}
+		time.Sleep(entities.STATES_PULL_INTERVAL)
 	}
 	return ctx.Respond()
 }

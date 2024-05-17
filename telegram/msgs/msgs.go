@@ -45,9 +45,9 @@ invalid tag, tags should be:
 `
 
 	Stat = `
-''CPU Usage:    '' {cpu_usage} %
-''Online CPUs:  '' {online_cpus}
-''Memory Usage: '' {memory_usage} ({memory_usage%} %)
-''Available Mem: '' {available_memory}
+''CPU Usage:     ''{cpu_usage} %
+''Online CPUs:   ''{online_cpus}
+''Memory Usage:  ''{memory_usage} ({memory_usage%} %)
+''Available Mem: ''{available_memory}
 `
 )

@@ -21,6 +21,10 @@ var (
 	NoImages                          = NewCallbackResponse("There is either no images or you should run /images again!")
 	StartedButUnavailableCurrentState = NewCallbackResponse("Container started, but we're not able to show current state.")
 	StoppedButUnavailableCurrentState = NewCallbackResponse("Container stopped, but we're not able to show current state.")
+	NoLogsAvailable                   = NewCallbackResponse("No logs available")
+	NoStatsAvailable                  = NewCallbackResponse("No stats available")
+	FinishingTheLogsStream            = NewCallbackResponse("Finishing the logs stream")
+	FinishingTheStatsStream           = NewCallbackResponse("Finishing the stats stream")
 )
 
 func NewCallbackResponse(text string) *telebot.CallbackResponse {

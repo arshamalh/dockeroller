@@ -79,6 +79,7 @@ func (h *handler) ImageRemoveForce(ctx telebot.Context) error {
 	irf.Force = !irf.Force
 	session.SetCurrentImage(current, index)
 
+	h.EmptyResponder(ctx)
 	return ctx.Edit(
 		msgs.FmtImage(current),
 		keyboards.ImageRemove(imageID, irf.Force, irf.PruneChildren),
@@ -93,6 +94,7 @@ func (h *handler) ImageRemovePruneChildren(ctx telebot.Context) error {
 	irf.PruneChildren = !irf.PruneChildren
 	session.SetCurrentImage(current, index)
 
+	h.EmptyResponder(ctx)
 	return ctx.Edit(
 		msgs.FmtImage(current),
 		keyboards.ImageRemove(current.ID, irf.Force, irf.PruneChildren),
