@@ -31,5 +31,5 @@ func InitGlobalLogger(filename string) {
 		zapcore.NewCore(fileEncoder, writer, defaultLogLevel),
 		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), defaultLogLevel),
 	)
-	Gl = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
+	Gl = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.WarnLevel))
 }

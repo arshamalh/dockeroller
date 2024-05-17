@@ -24,6 +24,12 @@ Enter new container name:
 Enter new image tag:
 `
 
+	InvalidImageTag = `
+invalid tag, tags should be:
+- all lower case
+- with no space
+`
+
 	Container = `
 ''Name:   '' {name},
 ''Image:  '' {image},
@@ -39,9 +45,9 @@ Enter new image tag:
 `
 
 	Stat = `
-''CPU Usage:    '' {cpu_usage} %
-''Online CPUs:  '' {online_cpus}
-''Memory Usage: '' {memory_usage} ({memory_usage%} %)
-''Available Mem: '' {available_memory}
+''CPU Usage:     ''{cpu_usage} %
+''Online CPUs:   ''{online_cpus}
+''Memory Usage:  ''{memory_usage} ({memory_usage%} %)
+''Available Mem: ''{available_memory}
 `
 )

@@ -13,7 +13,7 @@ import (
 
 func (h *handler) StartHandler(ctx telebot.Context) error {
 	newWelcomeMsg := strings.Replace(msgs.WelcomeMessage, "{name}", ctx.Message().Sender.FirstName, -1)
-	return ctx.Send(newWelcomeMsg, keyboards.Welcome())
+	return ctx.Send(msgs.FmtMono(newWelcomeMsg), keyboards.Welcome())
 }
 
 func (h *handler) General(ctx telebot.Context) error {
@@ -29,4 +29,13 @@ func (h *handler) General(ctx telebot.Context) error {
 
 	log.Gl.Error("orphan scene", zap.Int64("user id", userID), zap.Int("current scene", int(scene)))
 	return h.StartHandler(ctx)
+}
+
+// We SHOULD respond to button click events,
+// but when we don't want to,
+// we should at least call the empty Respond so the button flash light (UI of waiting) would go away.
+func (h *handler) EmptyResponder(ctx telebot.Context) {
+	if err := ctx.Respond(); err != nil {
+		log.Gl.Error(err.Error())
+	}
 }

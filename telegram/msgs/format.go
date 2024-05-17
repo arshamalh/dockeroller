@@ -10,7 +10,7 @@ import (
 
 // Monospace font is enabled by ` charater that is not supported in Go multiline string literals
 // So we should format it using ” and replacing them.
-// characters ()_-.>=< are also reserved by telegram and we will replace them with their escaped ones.
+// characters ()_-.><{}=+ are also reserved by telegram and we will replace them with their escaped ones.
 func FmtMono(input string) string {
 	return strings.NewReplacer(
 		"''", "`",
@@ -22,6 +22,9 @@ func FmtMono(input string) string {
 		"=", "\\=",
 		"<", "\\<",
 		">", "\\>",
+		"+", "\\+",
+		"{", "\\{",
+		"}", "\\}",
 	).Replace(input)
 }
 
@@ -37,9 +40,9 @@ func FmtContainer(container *entities.Container) string {
 
 func FmtImage(image *entities.Image) string {
 	// In docker the result of `docker image -q` give us
-	// images ids with 12 characters long
+	// images ids with LEN_IMG_TRIM (=12) characters long
 	imageIDTrimmed := strings.TrimPrefix(image.ID, "sha256:")
-	imageIDPart1 := imageIDTrimmed[0:12]
+	imageIDPart1 := imageIDTrimmed[0:entities.LEN_IMG_TRIM]
 	imageIDPart2 := imageIDTrimmed[len(imageIDTrimmed)-4:]
 	response := strings.NewReplacer(
 		"{id1}", imageIDPart1,

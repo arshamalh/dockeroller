@@ -5,17 +5,22 @@ import (
 	"io"
 
 	"github.com/arshamalh/dockeroller/entities"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 )
 
-func (d *docker) ContainersList(ctx context.Context, filters filters.Args) (containers []*entities.Container) {
-	raw_containers, _ := d.cli.ContainerList(ctx,
-		types.ContainerListOptions{
+func (d *docker) ContainersList(ctx context.Context, filters filters.Args) ([]*entities.Container, error) {
+	raw_containers, err := d.cli.ContainerList(ctx,
+		container.ListOptions{
 			All:     true,
 			Filters: filters,
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	containers := make([]*entities.Container, 0)
 	for _, raw_cont := range raw_containers {
 		containers = append(containers, &entities.Container{
 			ID:     raw_cont.ID,
@@ -25,11 +30,11 @@ func (d *docker) ContainersList(ctx context.Context, filters filters.Args) (cont
 			State:  entities.ContainerState(raw_cont.State),
 		})
 	}
-	return
+	return containers, nil
 }
 
-func (d *docker) GetContainer(containerID string) (*entities.Container, error) {
-	container, err := d.cli.ContainerInspect(context.TODO(), containerID)
+func (d *docker) GetContainer(ctx context.Context, containerID string) (*entities.Container, error) {
+	container, err := d.cli.ContainerInspect(ctx, containerID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,14 +47,14 @@ func (d *docker) GetContainer(containerID string) (*entities.Container, error) {
 	}, nil
 }
 
-func (d *docker) ContainerStats(containerID string) (io.ReadCloser, error) {
-	stats, err := d.cli.ContainerStats(context.TODO(), containerID, true)
+func (d *docker) ContainerStats(ctx context.Context, containerID string) (io.ReadCloser, error) {
+	stats, err := d.cli.ContainerStats(ctx, containerID, true)
 	return stats.Body, err
 }
 
-func (d *docker) ContainerLogs(containerID string) (io.ReadCloser, error) {
+func (d *docker) ContainerLogs(ctx context.Context, containerID string) (io.ReadCloser, error) {
 	// TODO: Interesting options about logs are available, you can get them from user settings
-	return d.cli.ContainerLogs(context.TODO(), containerID, types.ContainerLogsOptions{
+	return d.cli.ContainerLogs(ctx, containerID, container.LogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Follow:     true,
@@ -57,21 +62,21 @@ func (d *docker) ContainerLogs(containerID string) (io.ReadCloser, error) {
 	})
 }
 
-func (d *docker) ContainerStart(containerID string) error {
-	return d.cli.ContainerStart(context.TODO(), containerID, types.ContainerStartOptions{})
+func (d *docker) ContainerStart(ctx context.Context, containerID string) error {
+	return d.cli.ContainerStart(ctx, containerID, container.StartOptions{})
 }
 
-func (d *docker) ContainerStop(containerID string) error {
-	return d.cli.ContainerStop(context.TODO(), containerID, nil)
+func (d *docker) ContainerStop(ctx context.Context, containerID string) error {
+	return d.cli.ContainerStop(ctx, containerID, container.StopOptions{})
 }
 
-func (d *docker) ContainerRemove(containerID string, removeForm *entities.ContainerRemoveForm) error {
-	return d.cli.ContainerRemove(context.TODO(), containerID, types.ContainerRemoveOptions{
+func (d *docker) ContainerRemove(ctx context.Context, containerID string, removeForm *entities.ContainerRemoveForm) error {
+	return d.cli.ContainerRemove(ctx, containerID, container.RemoveOptions{
 		RemoveVolumes: removeForm.RemoveVolumes,
 		Force:         removeForm.Force,
 	})
 }
 
-func (d *docker) ContainerRename(containerID, newName string) error {
-	return d.cli.ContainerRename(context.TODO(), containerID, newName)
+func (d *docker) ContainerRename(ctx context.Context, containerID, newName string) error {
+	return d.cli.ContainerRename(ctx, containerID, newName)
 }

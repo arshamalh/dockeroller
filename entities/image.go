@@ -1,5 +1,11 @@
 package entities
 
+import (
+	"fmt"
+
+	"github.com/arshamalh/dockeroller/tools"
+)
+
 type ImageStatus string
 
 const (
@@ -15,5 +21,15 @@ type Image struct {
 	Status    ImageStatus
 	CreatedAt string
 	// A list of Containers using this image
-	UsedBy []*Container
+	UsedBy     []*Container
+	RemoveForm *ImageRemoveForm
+}
+
+func (img Image) String() string {
+	size := tools.SizeToHumanReadable(img.Size)
+	return fmt.Sprintf("%s - %s - %s - created at: %s", img.ID, size, img.Status, img.CreatedAt)
+}
+
+func (img *Image) ShortID() string {
+	return img.ID[:LEN_IMG_TRIM]
 }

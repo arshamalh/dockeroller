@@ -16,4 +16,7 @@ sample-docker: # Run docker with sample start command
 
 gen:
 	go generate ./...
+
+start:
+	go run main.go start
 	

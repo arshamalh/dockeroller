@@ -32,18 +32,4 @@ func TestNewSession(t *testing.T) {
 
 		assert.Equal(given, got)
 	})
-
-	t.Run("question", func(t *testing.T) {
-		s := session.New()
-
-		var userID int64 = 2
-		userData := s.Get(userID)
-		assert.NotNil(userData)
-
-		userData.SetContainerRemoveForm(true, true)
-		got := userData.GetContainerRemoveForm()
-
-		assert.Equal(true, got.Force)
-		assert.Equal(true, got.RemoveVolumes)
-	})
 }

@@ -15,11 +15,12 @@ const (
 )
 
 type Container struct {
-	ID     string
-	Name   string
-	Image  string
-	Status string
-	State  ContainerState
+	ID         string
+	Name       string
+	Image      string
+	Status     string
+	State      ContainerState
+	RemoveForm *ContainerRemoveForm
 }
 
 func (c Container) String() string {
@@ -28,4 +29,16 @@ func (c Container) String() string {
 
 func (c Container) IsOn() bool {
 	return c.State == ContainerStateRunning
+}
+
+func (c *Container) On() {
+	c.State = ContainerStateRunning
+}
+
+func (c *Container) Off() {
+	c.State = ContainerStateExited
+}
+
+func (c *Container) ShortID() string {
+	return c.ID[:LEN_CONT_TRIM]
 }

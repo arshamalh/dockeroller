@@ -1,14 +1,17 @@
 package cmd
 
 import (
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/arshamalh/dockeroller/docker"
+	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/session"
 	tpkg "github.com/arshamalh/dockeroller/telegram"
 	"github.com/arshamalh/dockeroller/telegram/handlers"
+	"github.com/arshamalh/dockeroller/telegram/middlewares"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"gopkg.in/telebot.v3"
@@ -54,8 +57,10 @@ func start(token string, whitelistedIDs []int64) {
 
 func startTelegram(docker docker.Docker, token string, whitelistedIDs []int64) {
 	bot, err := telebot.NewBot(telebot.Settings{
-		Token:  token,
-		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
+		Token:     token,
+		Poller:    &telebot.LongPoller{Timeout: 10 * time.Second},
+		ParseMode: telebot.ModeMarkdownV2,
+		Client:    &http.Client{Timeout: entities.CLIENT_TIMEOUT},
 	})
 	if err != nil {
 		log.Gl.Error(err.Error())
@@ -65,7 +70,7 @@ func startTelegram(docker docker.Docker, token string, whitelistedIDs []int64) {
 	// Middlewares
 	bot.Use(middleware.Whitelist(whitelistedIDs...))
 	// TODO: Disabled logger middleware for now.
-	// bot.Use(LoggerMiddleware(log.Gl))
+	bot.Use(middlewares.LoggerMiddleware(log.Gl))
 	if err := bot.SetCommands(tpkg.Commands); err != nil {
 		log.Gl.Error(err.Error())
 	}
