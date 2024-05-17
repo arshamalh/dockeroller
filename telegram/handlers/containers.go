@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 
+	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
@@ -26,7 +27,6 @@ func (h *handler) ContainersList(ctx telebot.Context) error {
 	return ctx.Send(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(current.ID, 0, current.IsOn()),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -51,7 +51,6 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(current.ID, index, current.IsOn()),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -82,7 +81,6 @@ func (h *handler) ContainersBackBtn(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(current.ID, index, current.IsOn()),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -96,11 +94,18 @@ func (h *handler) ContainerStart(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
 	current, index := session.GetCurrentContainer()
+	if current.ID[:entities.LEN_CONT_TRIM] != containerID {
+		log.Gl.Error("Current container isn't equal to callback id")
+	}
+	current.On()
+	session.SetCurrentContainer(current, index)
+
+	callbackMsg := msgs.FormattedCBResponse("container %s successfully turned on", current.Name)
+	ctx.Respond(callbackMsg)
 
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(current.ID, index, current.IsOn()),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -114,10 +119,17 @@ func (h *handler) ContainerStop(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
 	current, index := session.GetCurrentContainer()
+	if current.ID[:entities.LEN_CONT_TRIM] != containerID {
+		log.Gl.Error("Current container isn't equal to callback id")
+	}
+	current.Off()
+	session.SetCurrentContainer(current, index)
+
+	callbackMsg := msgs.FormattedCBResponse("container %s successfully turned off", current.Name)
+	ctx.Respond(callbackMsg)
 
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(current.ID, index, current.IsOn()),
-		telebot.ModeMarkdownV2,
 	)
 }

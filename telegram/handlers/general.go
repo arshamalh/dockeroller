@@ -13,7 +13,7 @@ import (
 
 func (h *handler) StartHandler(ctx telebot.Context) error {
 	newWelcomeMsg := strings.Replace(msgs.WelcomeMessage, "{name}", ctx.Message().Sender.FirstName, -1)
-	return ctx.Send(newWelcomeMsg, keyboards.Welcome())
+	return ctx.Send(msgs.FmtMono(newWelcomeMsg), keyboards.Welcome())
 }
 
 func (h *handler) General(ctx telebot.Context) error {

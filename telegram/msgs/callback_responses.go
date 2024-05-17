@@ -1,6 +1,10 @@
 package msgs
 
-import "gopkg.in/telebot.v3"
+import (
+	"fmt"
+
+	"gopkg.in/telebot.v3"
+)
 
 var (
 	CannotStartTheContainer           = NewCallbackResponse("We cannot start the container!")
@@ -21,4 +25,9 @@ var (
 
 func NewCallbackResponse(text string) *telebot.CallbackResponse {
 	return &telebot.CallbackResponse{Text: text}
+}
+
+func FormattedCBResponse(format string, args ...any) *telebot.CallbackResponse {
+	msg := fmt.Sprintf(format, args...)
+	return NewCallbackResponse(msg)
 }

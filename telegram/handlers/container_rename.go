@@ -22,7 +22,6 @@ func (h *handler) ContainerRename(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.ContainerNewNameInput,
 		keyboards.ContainerBack(index),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -34,7 +33,6 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 		return ctx.Edit(
 			"you're lost!, please /start again",
 			keyboards.ContainerBack(index),
-			telebot.ModeMarkdownV2,
 		)
 	}
 
@@ -44,13 +42,11 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 		return ctx.Edit(
 			"we cannot rename this container",
 			keyboards.ContainerBack(index),
-			telebot.ModeMarkdownV2,
 		)
 	}
 
 	return ctx.Send(
 		msgs.FmtContainerRenamed(container.Name, newName),
 		keyboards.ContainerBack(index),
-		telebot.ModeMarkdownV2,
 	)
 }

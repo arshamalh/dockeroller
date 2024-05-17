@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/arshamalh/dockeroller/entities"
@@ -20,9 +19,7 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 	// TODO: Starting from the beginning might cause confusion in long stream of errors, we should have a navigate till to the end button.
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
-	rawData := strings.Split(ctx.Data(), "|")
-	containerID := rawData[0]
-	index := tools.Str2Int(rawData[1])
+	containerID, index := tools.ExtractIndexAndID(ctx.Data())
 
 	quit := make(chan struct{})
 	session.SetQuitChan(quit)
@@ -49,8 +46,7 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 				queue.String(),
 				keyboards.ContainerBack(index),
 			)
-			time.Sleep(time.Millisecond * 500)
-			// TODO: sleeping time, not hardcoded, not too much, not so little (under 500 millisecond would be annoying)
+			time.Sleep(entities.LOGS_PULL_INTERVAL)
 		}
 	}
 	return ctx.Respond()
@@ -59,10 +55,7 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 func (h *handler) ContainerStats(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
-
-	rawData := strings.Split(ctx.Data(), "|")
-	containerID := rawData[0]
-	index := tools.Str2Int(rawData[1])
+	containerID, index := tools.ExtractIndexAndID(ctx.Data())
 
 	quit := make(chan struct{})
 	session.SetQuitChan(quit)
@@ -86,16 +79,14 @@ func (h *handler) ContainerStats(ctx telebot.Context) error {
 
 			if newMsg := msgs.FmtStats(stats); newMsg != latestMsg {
 				err := ctx.Edit(
-					newMsg,
-					keyboards.ContainerBack(index),
-					telebot.ModeMarkdownV2,
+					newMsg, keyboards.ContainerBack(index),
 				)
 				if err != nil {
 					log.Gl.Error(err.Error())
 				}
 				latestMsg = newMsg
 			}
-			time.Sleep(time.Second)
+			time.Sleep(entities.STATES_PULL_INTERVAL)
 		}
 	}
 	return ctx.Respond()

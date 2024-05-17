@@ -50,6 +50,7 @@
 - [ ] Add linter (golangci-linter to actions)
 - [ ] Pass ID to session like the way dongi works, or maybe better!
 - [ ] What happens if we have a job that permanently pull images list and containers list from docker and we use that instead of using the one we already have?
+- [ ] When there are multiple tags for an image, there should be a possibility to remove only one of them (like docker desktop), not all at once 
 
 ----- 
 In Telegram, we have a few UI components,

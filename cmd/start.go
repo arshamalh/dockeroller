@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/arshamalh/dockeroller/docker"
+	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/session"
 	tpkg "github.com/arshamalh/dockeroller/telegram"
@@ -55,8 +57,10 @@ func start(token string, whitelistedIDs []int64) {
 
 func startTelegram(docker docker.Docker, token string, whitelistedIDs []int64) {
 	bot, err := telebot.NewBot(telebot.Settings{
-		Token:  token,
-		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
+		Token:     token,
+		Poller:    &telebot.LongPoller{Timeout: 10 * time.Second},
+		ParseMode: telebot.ModeMarkdownV2,
+		Client:    &http.Client{Timeout: entities.CLIENT_TIMEOUT_SECONDS * time.Second},
 	})
 	if err != nil {
 		log.Gl.Error(err.Error())

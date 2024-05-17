@@ -9,7 +9,6 @@ type UserData struct {
 	currentContainerIndex int
 	currentImage          *entities.Image
 	currentImageIndex     int
-	forms                 *entities.Forms
 	quitChan              chan struct{}
 }
 
@@ -38,6 +37,9 @@ func (d *UserData) GetCurrentContainer() (*entities.Container, int) {
 }
 
 func (d *UserData) SetCurrentImage(image *entities.Image, index int) {
+	if image.RemoveForm == nil {
+		image.RemoveForm = &entities.ImageRemoveForm{}
+	}
 	d.currentImage = image
 	d.currentImageIndex = index
 }
@@ -52,22 +54,4 @@ func (d *UserData) SetQuitChan(quitChan chan struct{}) {
 
 func (d *UserData) GetQuitChan() chan<- struct{} {
 	return d.quitChan
-}
-
-func (d *UserData) SetImageRemoveForm(force, pruneChildren bool) *entities.ImageRemoveForm {
-	if d.forms == nil {
-		d.forms = &entities.Forms{
-			ImageRemove: &entities.ImageRemoveForm{},
-		}
-	}
-	d.forms.ImageRemove.Force = force
-	d.forms.ImageRemove.PruneChildren = pruneChildren
-	return d.forms.ImageRemove
-}
-
-func (d *UserData) GetImageRemoveForm() *entities.ImageRemoveForm {
-	if d.forms != nil && d.forms.ImageRemove != nil {
-		return d.forms.ImageRemove
-	}
-	return &entities.ImageRemoveForm{}
 }

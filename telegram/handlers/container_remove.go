@@ -3,10 +3,10 @@ package handlers
 import (
 	"context"
 
-	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
+	"github.com/arshamalh/dockeroller/tools"
 	"github.com/docker/docker/api/types/filters"
 	"go.uber.org/zap"
 	"gopkg.in/telebot.v3"
@@ -26,19 +26,22 @@ func (h *handler) ContainerRemoveForm(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainerRemove(containerID, index, crf.Force, crf.RemoveVolumes),
-		telebot.ModeMarkdownV2,
 	)
 }
 
 // Removes the container with specified options
 func (h *handler) ContainerRemoveDone(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
-	containerID := ctx.Data()
+	containerID, _ := tools.ExtractIndexAndID(ctx.Data())
 	session := h.session.Get(userID)
 
 	current, _ := session.GetCurrentContainer()
-	if current.ID[:entities.LEN_CONT_TRIM] != containerID {
-		log.Gl.Info("Removing another container when current is different", zap.String("current", current.String()))
+	if current.ShortID() != containerID {
+		log.Gl.Info(
+			"Removing another container when current is different",
+			zap.String("current in session", current.String()),
+			zap.String("from callback", containerID),
+		)
 		return ctx.Respond(msgs.UnableToRemoveContainer)
 	}
 
@@ -66,7 +69,6 @@ func (h *handler) ContainerRemoveDone(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainersList(current.ID, 0, current.IsOn()),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -81,7 +83,6 @@ func (h *handler) ContainerRemoveForce(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainerRemove(current.ID, index, crf.Force, crf.RemoveVolumes),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -96,6 +97,5 @@ func (h *handler) ContainerRemoveVolumes(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.FmtContainer(current),
 		keyboards.ContainerRemove(current.ID, index, crf.Force, crf.RemoveVolumes),
-		telebot.ModeMarkdownV2,
 	)
 }

@@ -12,8 +12,6 @@ import (
 )
 
 func (h *handler) ImagesList(ctx telebot.Context) error {
-	h.EmptyResponder(ctx)
-
 	images, err := h.docker.ImagesList(context.TODO(), filters.Args{})
 	if err != nil {
 		log.Gl.Error(err.Error())
@@ -23,15 +21,15 @@ func (h *handler) ImagesList(ctx telebot.Context) error {
 		return ctx.Respond(msgs.NoImages)
 	}
 
+	current := images[0]
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
-	current := images[0]
 	session.SetCurrentImage(current, 0)
 
+	h.EmptyResponder(ctx)
 	return ctx.Send(
 		msgs.FmtImage(current),
 		keyboards.ImagesList(0),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -58,7 +56,6 @@ func (h *handler) ImagesNavBtn(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.FmtImage(current),
 		keyboards.ImagesList(index),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -82,6 +79,5 @@ func (h *handler) ImagesBackBtn(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.FmtImage(current),
 		keyboards.ImagesList(index),
-		telebot.ModeMarkdownV2,
 	)
 }

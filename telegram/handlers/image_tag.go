@@ -20,7 +20,6 @@ func (h *handler) ImageTag(ctx telebot.Context) error {
 	return ctx.Edit(
 		msgs.ImageNewNameInput,
 		keyboards.ImageBack(index),
-		telebot.ModeMarkdownV2,
 	)
 }
 
@@ -32,7 +31,6 @@ func (h *handler) ImageTagTextHandler(ctx telebot.Context) error {
 		return ctx.Send(
 			"you're lost!, please /start again",
 			keyboards.ImageBack(0),
-			telebot.ModeMarkdownV2,
 		)
 	}
 
@@ -41,13 +39,11 @@ func (h *handler) ImageTagTextHandler(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 		return ctx.Send(
 			msgs.FmtMono(msgs.InvalidImageTag),
-			telebot.ModeMarkdownV2,
 		)
 	}
 
 	return ctx.Send(
 		msgs.FmtImageTagged(image.ID, newTag),
 		keyboards.ImageBack(index),
-		telebot.ModeMarkdownV2,
 	)
 }

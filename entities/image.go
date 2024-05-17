@@ -29,3 +29,7 @@ func (img Image) String() string {
 	size := tools.SizeToHumanReadable(img.Size)
 	return fmt.Sprintf("%s - %s - %s - created at: %s", img.ID, size, img.Status, img.CreatedAt)
 }
+
+func (img *Image) ShortID() string {
+	return img.ID[:LEN_IMG_TRIM]
+}
