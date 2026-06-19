@@ -14,6 +14,8 @@ var (
 	NoContainer                       = NewCallbackResponse("There is either no containers or you should run /containers again!")
 	StartedButUnavailableCurrentState = NewCallbackResponse("Container started, but we're not able to show current state.")
 	StoppedButUnavailableCurrentState = NewCallbackResponse("Container stopped, but we're not able to show current state.")
+	CannotPauseContainer              = NewCallbackResponse("We cannot pause the container!")
+	ContainerPausedSuccessfully       = NewCallbackResponse("Container paused successfully")
 )
 
 func NewCallbackResponse(text string) *telebot.CallbackResponse {

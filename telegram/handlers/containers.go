@@ -121,3 +121,18 @@ func (h *handler) ContainerStop(ctx telebot.Context) error {
 		telebot.ModeMarkdownV2,
 	)
 }
+
+func (h *handler) ContainerPause(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
+	index, err := strconv.Atoi(ctx.Data())
+	session := h.session.Get(userID)
+	if err != nil {
+		log.Gl.Error(err.Error())
+	}
+	current := session.GetContainer(index)
+	if err := h.docker.ContainerPause(current.ID); err != nil {
+		log.Gl.Error(err.Error())
+		return ctx.Respond(msgs.CannotPauseContainer)
+	}
+	return ctx.Respond(msgs.ContainerPausedSuccessfully)
+}

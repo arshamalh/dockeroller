@@ -75,3 +75,7 @@ func (d *docker) ContainerRemove(containerID string, removeForm *entities.Contai
 func (d *docker) ContainerRename(containerID, newName string) error {
 	return d.cli.ContainerRename(context.TODO(), containerID, newName)
 }
+
+func (d *docker) ContainerPause(containerID string) error {
+	return d.cli.ContainerPause(context.TODO(), containerID)
+}
