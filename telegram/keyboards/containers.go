@@ -17,6 +17,8 @@ func ContainersList(index int, containerIsOn bool) *telebot.ReplyMarkup {
 		},
 		telebot.Row{
 			switchBtn(keyboard, index, containerIsOn),
+			keyboard.Data("Pause ⏸", btns.ContPause.String(), fmt.Sprint(index)),
+			keyboard.Data("Unpause ▶️", btns.ContUnpause.String(), fmt.Sprint(index)),
 			keyboard.Data("Remove 🗑", btns.ContRemoveForm.String(), fmt.Sprint(index)),
 			keyboard.Data("Rename ✏️", btns.ContRename.String(), fmt.Sprint(index)),
 		},
@@ -25,7 +27,6 @@ func ContainersList(index int, containerIsOn bool) *telebot.ReplyMarkup {
 			keyboard.Data("Stats 📊", btns.ContStats.String(), fmt.Sprint(index)),
 		},
 	)
-
 	return keyboard
 }
 

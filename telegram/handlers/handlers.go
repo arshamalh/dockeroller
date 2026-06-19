@@ -55,6 +55,8 @@ func NewHandler(bot *telebot.Bot, docker docker.Docker, session sessionPkg.Sessi
 	h.bot.Handle(btns.ImgRmPruneCh.Key(), h.ImageRemovePruneChildren)
 	h.bot.Handle(btns.ImgRmDone.Key(), h.ImageRemoveDone)
 	h.bot.Handle(btns.ImgTag.Key(), h.ImageTag)
-
+	h.bot.Handle(btns.ContPause.Key(), h.ContainerPause)
+	h.bot.Handle(btns.ContUnpause.Key(), h.ContainerUnpause)
+	
 	return h
 }
