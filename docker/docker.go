@@ -20,7 +20,7 @@ type Docker interface {
 	ContainerRemove(containerID string, removeForm *entities.ContainerRemoveForm) error
 	ContainerRename(containerID, newName string) error
 	ContainerPause(containerID string) error
-
+    ContainerUnpause(containerID string) error
 
 	ImagesList() []*entities.Image
 	ImageTag(ctx context.Context, imageID, newTag string) error

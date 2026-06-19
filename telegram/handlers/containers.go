@@ -136,3 +136,18 @@ func (h *handler) ContainerPause(ctx telebot.Context) error {
 	}
 	return ctx.Respond(msgs.ContainerPausedSuccessfully)
 }
+
+func (h *handler) ContainerUnpause(ctx telebot.Context) error {
+	userID := ctx.Chat().ID
+	index, err := strconv.Atoi(ctx.Data())
+	session := h.session.Get(userID)
+	if err != nil {
+		log.Gl.Error(err.Error())
+	}
+	current := session.GetContainer(index)
+	if err := h.docker.ContainerUnpause(current.ID); err != nil {
+		log.Gl.Error(err.Error())
+		return ctx.Respond(msgs.CannotUnpauseContainer)
+	}
+	return ctx.Respond(msgs.ContainerUnpausedSuccessfully)
+}

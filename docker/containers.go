@@ -79,3 +79,7 @@ func (d *docker) ContainerRename(containerID, newName string) error {
 func (d *docker) ContainerPause(containerID string) error {
 	return d.cli.ContainerPause(context.TODO(), containerID)
 }
+
+func (d *docker) ContainerUnpause(containerID string) error {
+	return d.cli.ContainerUnpause(context.TODO(), containerID)
+}

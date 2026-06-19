@@ -28,6 +28,7 @@ const (
 	ContRemoveVolume BtnKey = "contRmVol"
 	ContRemoveDone   BtnKey = "contRmDone"
 	ContPause        BtnKey = "contPause"
+	ContUnpause      BtnKey = "contUnpause"
 
 	// Images
 	Images     BtnKey = "imgs"

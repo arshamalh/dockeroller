@@ -16,6 +16,8 @@ var (
 	StoppedButUnavailableCurrentState = NewCallbackResponse("Container stopped, but we're not able to show current state.")
 	CannotPauseContainer              = NewCallbackResponse("We cannot pause the container!")
 	ContainerPausedSuccessfully       = NewCallbackResponse("Container paused successfully")
+	CannotUnpauseContainer            = NewCallbackResponse("We cannot unpause the container!")
+	ContainerUnpausedSuccessfully     = NewCallbackResponse("Container unpaused successfully")
 )
 
 func NewCallbackResponse(text string) *telebot.CallbackResponse {
