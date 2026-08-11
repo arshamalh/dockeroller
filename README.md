@@ -1,3 +1,5 @@
+
+
 # Dockeroller 🐳
 <p align=center>
  <a href="https://codecov.io/github/arshamalh/dockeroller"> 
@@ -22,7 +24,7 @@ Then you should make a bot (it's name and username doesn't matter) with [bot fat
 ```bash
 dockeroller start --token "<YOUR-TOKEN>"
 ```
-And now your docker daemon is accessible thorough your Telegram bot.
+And now your docker daemon is accessible through your Telegram bot.
 
 ## Security
 There is no security concerns as long as you keep your telegram account safe, and Whitelist known ids:
