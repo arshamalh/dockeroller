@@ -28,8 +28,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GO111MODULE: on
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -37,13 +35,17 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: 1.21.0
+        go-version-file: go.mod
 
-    - name: Install dependencies
-      run: go mod download
-
-    - name: Run tests
-      run: go test -v ./...
+    - name: Vet
+      run: go vet ./...
 
     - name: Check code style
-      run: gofmt -l -s $(find . -type f -name '*.go' -not -path "./vendor/*")
+      run: test -z "$(gofmt -l -s .)" || (gofmt -l -s . && exit 1)
+
+    # The runner has a Docker daemon, so the docker package's integration
+    # tests run too (they pull busybox).
+    - name: Run tests
+      env:
+        DOCKEROLLER_DOCKER_TESTS: "1"
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...

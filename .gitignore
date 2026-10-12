@@ -4,3 +4,10 @@ vendor
 log.json
 .idea
 
+
+# SQLite database of the bot
+dockeroller.db*
+*.db
+*.db-shm
+*.db-wal
+coverage.txt
