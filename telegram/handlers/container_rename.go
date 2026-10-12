@@ -49,7 +49,7 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 	}
 
 	newName := ctx.Text()
-	if err := h.docker.ContainerRename(container.ID, newName); err != nil {
+	if err := h.docker.ContainerRename(context.TODO(), container.ID, newName); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Edit(
 			"we cannot rename this container",
@@ -58,7 +58,7 @@ func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
 		)
 	}
 
-	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
+	containers, _ := h.docker.ContainersList(context.TODO(), filters.Args{})
 	session.SetContainers(containers)
 
 	return ctx.Send(

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/arshamalh/dockeroller/entities"
@@ -66,7 +67,7 @@ func (h *handler) ImagesBackBtn(ctx telebot.Context) error {
 }
 
 func (h *handler) updateImagesList(userID int64) []*entities.Image {
-	images := h.docker.ImagesList()
+	images, _ := h.docker.ImagesList(context.TODO())
 	session := h.session.Get(userID)
 	session.SetImages(images)
 	return images

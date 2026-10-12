@@ -45,14 +45,14 @@ func (h *handler) ContainerRemoveDone(ctx telebot.Context) error {
 	current := session.GetContainer(index)
 	cRemoveForm := session.GetContainerRemoveForm()
 
-	if err := h.docker.ContainerRemove(current.ID, cRemoveForm); err != nil {
+	if err := h.docker.ContainerRemove(context.TODO(), current.ID, cRemoveForm); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(msgs.UnableToRemoveContainer)
 	}
 
 	ctx.Respond(msgs.ContainerRemovedSuccessfully)
 
-	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
+	containers, _ := h.docker.ContainersList(context.TODO(), filters.Args{})
 	session.SetContainers(containers)
 	if len(containers) == 0 {
 		// TODO: if container removed and there is no container, get back to the start menu, no extra action needed

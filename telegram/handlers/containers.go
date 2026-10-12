@@ -15,7 +15,7 @@ import (
 func (h *handler) ContainersList(ctx telebot.Context) error {
 	userID := ctx.Chat().ID
 	session := h.session.Get(userID)
-	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
+	containers, _ := h.docker.ContainersList(context.TODO(), filters.Args{})
 	session.SetContainers(containers)
 	if len(containers) == 0 {
 		return ctx.Respond(msgs.NoContainer)
@@ -36,7 +36,7 @@ func (h *handler) ContainersNavBtn(ctx telebot.Context) error {
 	}
 
 	session := h.session.Get(userID)
-	containers := h.docker.ContainersList(context.TODO(), filters.Args{})
+	containers, _ := h.docker.ContainersList(context.TODO(), filters.Args{})
 	session.SetContainers(containers)
 	if len(containers) == 0 {
 		return ctx.Respond(msgs.NoContainer)
@@ -81,12 +81,12 @@ func (h *handler) ContainerStart(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 	}
 	current := session.GetContainer(index)
-	if err := h.docker.ContainerStart(current.ID); err != nil {
+	if err := h.docker.ContainerStart(context.TODO(), current.ID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(msgs.CannotStartTheContainer)
 	}
 
-	current, err = h.docker.GetContainer(current.ID)
+	current, err = h.docker.GetContainer(context.TODO(), current.ID)
 	if err != nil {
 		return ctx.Respond(msgs.StartedButUnavailableCurrentState)
 	}
@@ -105,12 +105,12 @@ func (h *handler) ContainerStop(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 	}
 	current := session.GetContainer(index)
-	if err := h.docker.ContainerStop(current.ID); err != nil {
+	if err := h.docker.ContainerStop(context.TODO(), current.ID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(msgs.CannotStopTheContainer)
 	}
 
-	current, err = h.docker.GetContainer(current.ID)
+	current, err = h.docker.GetContainer(context.TODO(), current.ID)
 	if err != nil {
 		return ctx.Respond(msgs.StoppedButUnavailableCurrentState)
 	}
@@ -130,7 +130,7 @@ func (h *handler) ContainerPause(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 	}
 	current := session.GetContainer(index)
-	if err := h.docker.ContainerPause(current.ID); err != nil {
+	if err := h.docker.ContainerPause(context.TODO(), current.ID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(msgs.CannotPauseContainer)
 	}
@@ -145,7 +145,7 @@ func (h *handler) ContainerUnpause(ctx telebot.Context) error {
 		log.Gl.Error(err.Error())
 	}
 	current := session.GetContainer(index)
-	if err := h.docker.ContainerUnpause(current.ID); err != nil {
+	if err := h.docker.ContainerUnpause(context.TODO(), current.ID); err != nil {
 		log.Gl.Error(err.Error())
 		return ctx.Respond(msgs.CannotUnpauseContainer)
 	}

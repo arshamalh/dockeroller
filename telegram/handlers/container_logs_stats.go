@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"strconv"
 	"time"
@@ -25,7 +26,7 @@ func (h *handler) ContainerLogs(ctx telebot.Context) error {
 	current := session.GetContainer(index)
 	quit := make(chan struct{})
 	session.SetQuitChan(quit)
-	stream, err := h.docker.ContainerLogs(current.ID)
+	stream, err := h.docker.ContainerLogs(context.TODO(), current.ID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}
@@ -65,7 +66,7 @@ func (h *handler) ContainerStats(ctx telebot.Context) error {
 	current := session.GetContainer(index)
 	quit := make(chan struct{})
 	session.SetQuitChan(quit)
-	stream, err := h.docker.ContainerStats(current.ID)
+	stream, err := h.docker.ContainerStats(context.TODO(), current.ID)
 	if err != nil {
 		log.Gl.Error(err.Error())
 	}

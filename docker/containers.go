@@ -3,83 +3,129 @@ package docker
 import (
 	"context"
 	"io"
+	"strings"
 
 	"github.com/arshamalh/dockeroller/entities"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/pkg/stdcopy"
 )
 
-func (d *docker) ContainersList(ctx context.Context, filters filters.Args) (containers []*entities.Container) {
-	raw_containers, _ := d.cli.ContainerList(ctx,
-		types.ContainerListOptions{
-			All:     true,
-			Filters: filters,
-		},
-	)
-	for _, raw_cont := range raw_containers {
-		containers = append(containers, &entities.Container{
-			ID:     raw_cont.ID,
-			Name:   raw_cont.Names[0],
-			Image:  raw_cont.Image,
-			Status: raw_cont.Status,
-			State:  entities.ContainerState(raw_cont.State),
-		})
-	}
-	return
-}
-
-func (d *docker) GetContainer(containerID string) (*entities.Container, error) {
-	container, err := d.cli.ContainerInspect(context.TODO(), containerID)
+func (d *docker) ContainersList(ctx context.Context, filters filters.Args) ([]*entities.Container, error) {
+	raw, err := d.cli.ContainerList(ctx, container.ListOptions{
+		All:     true,
+		Filters: filters,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return &entities.Container{
-		ID:     container.ID,
-		Name:   container.Name,
-		Image:  container.Image,
-		Status: container.State.Status,
-		State:  entities.ContainerState(container.State.Status),
-	}, nil
+	containers := make([]*entities.Container, 0, len(raw))
+	for _, c := range raw {
+		name := ""
+		if len(c.Names) > 0 {
+			name = c.Names[0]
+		}
+		containers = append(containers, &entities.Container{
+			ID:     c.ID,
+			Name:   cleanName(name),
+			Image:  c.Image,
+			Status: c.Status,
+			State:  entities.ContainerState(c.State),
+		})
+	}
+	return containers, nil
 }
 
-func (d *docker) ContainerStats(containerID string) (io.ReadCloser, error) {
-	stats, err := d.cli.ContainerStats(context.TODO(), containerID, true)
-	return stats.Body, err
+func (d *docker) GetContainer(ctx context.Context, containerID string) (*entities.Container, error) {
+	c, err := d.cli.ContainerInspect(ctx, containerID)
+	if err != nil {
+		return nil, err
+	}
+	cont := &entities.Container{
+		ID:   c.ID,
+		Name: cleanName(c.Name),
+		// Inspect's top-level Image is the image digest; Config.Image is the
+		// reference the container was created from, as the list shows it.
+		Image: c.Image,
+	}
+	if c.Config != nil && c.Config.Image != "" {
+		cont.Image = c.Config.Image
+	}
+	if c.State != nil {
+		cont.Status = c.State.Status
+		cont.State = entities.ContainerState(c.State.Status)
+	}
+	return cont, nil
 }
 
-func (d *docker) ContainerLogs(containerID string) (io.ReadCloser, error) {
+// cleanName strips the leading "/" the Docker API puts in front of names.
+func cleanName(name string) string {
+	return strings.TrimPrefix(name, "/")
+}
+
+func (d *docker) ContainerStats(ctx context.Context, containerID string) (io.ReadCloser, error) {
+	stats, err := d.cli.ContainerStats(ctx, containerID, true)
+	if err != nil {
+		return nil, err
+	}
+	return stats.Body, nil
+}
+
+func (d *docker) ContainerLogs(ctx context.Context, containerID string) (io.ReadCloser, error) {
+	info, err := d.cli.ContainerInspect(ctx, containerID)
+	if err != nil {
+		return nil, err
+	}
 	// TODO: Interesting options about logs are available, you can get them from user settings
-	return d.cli.ContainerLogs(context.TODO(), containerID, types.ContainerLogsOptions{
+	stream, err := d.cli.ContainerLogs(ctx, containerID, container.LogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Follow:     true,
-		Details:    false,
+		Tail:       "50",
 	})
+	if err != nil {
+		return nil, err
+	}
+	if info.Config != nil && info.Config.Tty {
+		// TTY containers stream raw text.
+		return stream, nil
+	}
+	// Without a TTY, stdout and stderr are multiplexed with 8-byte frame
+	// headers that must be stripped, or they show up as garbage.
+	pr, pw := io.Pipe()
+	go func() {
+		_, err := stdcopy.StdCopy(pw, pw, stream)
+		stream.Close()
+		pw.CloseWithError(err)
+	}()
+	return pr, nil
 }
 
-func (d *docker) ContainerStart(containerID string) error {
-	return d.cli.ContainerStart(context.TODO(), containerID, types.ContainerStartOptions{})
+func (d *docker) ContainerStart(ctx context.Context, containerID string) error {
+	return d.cli.ContainerStart(ctx, containerID, container.StartOptions{})
 }
 
-func (d *docker) ContainerStop(containerID string) error {
-	return d.cli.ContainerStop(context.TODO(), containerID, nil)
+func (d *docker) ContainerStop(ctx context.Context, containerID string) error {
+	return d.cli.ContainerStop(ctx, containerID, container.StopOptions{})
 }
 
-func (d *docker) ContainerRemove(containerID string, removeForm *entities.ContainerRemoveForm) error {
-	return d.cli.ContainerRemove(context.TODO(), containerID, types.ContainerRemoveOptions{
-		RemoveVolumes: removeForm.RemoveVolumes,
-		Force:         removeForm.Force,
-	})
+func (d *docker) ContainerRemove(ctx context.Context, containerID string, removeForm *entities.ContainerRemoveForm) error {
+	opts := container.RemoveOptions{}
+	if removeForm != nil {
+		opts.RemoveVolumes = removeForm.RemoveVolumes
+		opts.Force = removeForm.Force
+	}
+	return d.cli.ContainerRemove(ctx, containerID, opts)
 }
 
-func (d *docker) ContainerRename(containerID, newName string) error {
-	return d.cli.ContainerRename(context.TODO(), containerID, newName)
+func (d *docker) ContainerRename(ctx context.Context, containerID, newName string) error {
+	return d.cli.ContainerRename(ctx, containerID, newName)
 }
 
-func (d *docker) ContainerPause(containerID string) error {
-	return d.cli.ContainerPause(context.TODO(), containerID)
+func (d *docker) ContainerPause(ctx context.Context, containerID string) error {
+	return d.cli.ContainerPause(ctx, containerID)
 }
 
-func (d *docker) ContainerUnpause(containerID string) error {
-	return d.cli.ContainerUnpause(context.TODO(), containerID)
+func (d *docker) ContainerUnpause(ctx context.Context, containerID string) error {
+	return d.cli.ContainerUnpause(ctx, containerID)
 }

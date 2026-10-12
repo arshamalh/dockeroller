@@ -39,7 +39,10 @@ func start(token string, whitelistedIDs []int64) {
 		log.Gl.Error(err.Error())
 	}
 
-	docker := docker.New()
+	docker, err := docker.New()
+	if err != nil {
+		log.Gl.Fatal(err.Error())
+	}
 
 	// apiSrv := api.New(docker)
 	if token == "" {

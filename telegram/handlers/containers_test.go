@@ -39,7 +39,7 @@ func TestContainersList(t *testing.T) {
 	t.Run("no containers", func(t *testing.T) {
 		ctx.EXPECT().Respond(msgs.NoContainer).Return(nil)
 		ctx.EXPECT().Chat().Return(&telebot.Chat{ID: 467})
-		docker.EXPECT().ContainersList(context.TODO(), filters.Args{}).Return([]*entities.Container{})
+		docker.EXPECT().ContainersList(context.TODO(), filters.Args{}).Return([]*entities.Container{}, nil)
 
 		err := handler.ContainersList(ctx)
 
@@ -47,7 +47,7 @@ func TestContainersList(t *testing.T) {
 	})
 
 	t.Run("picking first container and formatting", func(t *testing.T) {
-		docker.EXPECT().ContainersList(context.TODO(), filters.Args{}).Return(containersList)
+		docker.EXPECT().ContainersList(context.TODO(), filters.Args{}).Return(containersList, nil)
 		ctx.EXPECT().Chat().Return(&telebot.Chat{ID: 467})
 
 		ctx.EXPECT().Send(gomock.Any(), gomock.Any()).DoAndReturn(func(receivedContainer interface{}, opts ...interface{}) error {
@@ -86,7 +86,7 @@ func TestContainersNav(t *testing.T) {
 		ctx.EXPECT().Chat().Return(&telebot.Chat{ID: 467})
 		ctx.EXPECT().Data().Return("1")
 
-		docker.EXPECT().ContainersList(context.TODO(), filters.Args{}).Return(containersList)
+		docker.EXPECT().ContainersList(context.TODO(), filters.Args{}).Return(containersList, nil)
 
 		editMockedFunc := func(receivedContainer interface{}, opts ...interface{}) error {
 			formattedContainer := msgs.FmtContainer(containersList[1])
@@ -106,7 +106,7 @@ func TestContainersNav(t *testing.T) {
 		ctx.EXPECT().Chat().Return(&telebot.Chat{ID: 467})
 		ctx.EXPECT().Data().Return("-1")
 
-		docker.EXPECT().ContainersList(context.TODO(), filters.Args{}).Return(containersList)
+		docker.EXPECT().ContainersList(context.TODO(), filters.Args{}).Return(containersList, nil)
 
 		editMockedFunc := func(receivedContainer interface{}, opts ...interface{}) error {
 			formattedContainer := msgs.FmtContainer(containersList[NumberOfContainers-1])
