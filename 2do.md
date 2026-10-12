@@ -15,17 +15,17 @@
     - [x] Image size should be in human readable units
     - [x] Image ID should be shorted (trimmed)
     - [ ] Image name and tag should be separated???
-    - [ ] Add Image status and created at
+    - [x] Add Image status and created at
     - [ ] Image run, rename, remove commands 
-    - [ ] Error on line 78 if log file about ">" character should be resolved
+    - [x] Error on line 78 if log file about ">" character should be resolved (every value is escaped now)
 - [ ] Add ability to run containers out of images
 - [ ] Ability to filter Containers and Images
-- [ ] Gaining at least 50% test coverage
-- [ ] Debug container stats as it sounds to have problem in some cases
-- [ ] Remove previous messages buttons (when they are not required)
-- [ ] Handle callback queries to show messages, e.g. for remove.
+- [x] Gaining at least 50% test coverage (~80% with the Docker integration tests)
+- [x] Debug container stats as it sounds to have problem in some cases (precpu_stats was read from the wrong field)
+- [x] Remove previous messages buttons (when they are not required) (one panel message, edited in place)
+- [x] Handle callback queries to show messages, e.g. for remove.
     - Helper: &telebot.CallbackResponse{Text: fmt.Sprint(ctx.Data(), "removed!")}
-- [ ] Incompatibility between github.com/docker/docker and github.com/moby/moby
+- [x] Incompatibility between github.com/docker/docker and github.com/moby/moby (only docker/docker v28 now)
 - [ ] If the image is in use, include a button to show the containers using it, back button should get back to the list of Images
 - [ ] Containers list using filters filters.Args should use a better alternative as All is not a filter and should be an argument for containers list
 
@@ -48,5 +48,5 @@
 - [ ] Should we replace docker by contract and use it directly as we will never replace it? Not actually, as we may want to plug a mock instead or wrap its functions
 - [ ] `dockeroller/docker/docker.go:29` We should get Docker ENVs from user in case of not default
 - [ ] Add linter (golangci-linter to actions)
-- [ ] Pass ID to session like the way dongi works, or maybe better!
+- [x] Pass ID to session like the way dongi works, or maybe better! (tbb sessions)
 
