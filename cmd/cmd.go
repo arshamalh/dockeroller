@@ -1,7 +1,9 @@
 package cmd
 
 import (
-	"github.com/arshamalh/dockeroller/log"
+	"log/slog"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -11,10 +13,9 @@ func Execute() {
 		Short: "ChatOps application for controlling docker daemon through messengers such as Telegram",
 	}
 
-	log.InitGlobalLogger("log.json")
-
 	registerStart(root)
 	if err := root.Execute(); err != nil {
-		log.Gl.Fatal(err.Error())
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
 }

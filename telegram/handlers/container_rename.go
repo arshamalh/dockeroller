@@ -1,69 +1,74 @@
 package handlers
 
 import (
-	"context"
-	"strconv"
+	"strings"
 
-	"github.com/arshamalh/dockeroller/entities"
-	"github.com/arshamalh/dockeroller/log"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
 	"github.com/docker/docker/api/types/filters"
-	"gopkg.in/telebot.v3"
 )
 
-func (h *handler) ContainerRename(ctx telebot.Context) error {
-	if err := ctx.Respond(); err != nil {
-		log.Gl.Error(err.Error())
+// ContainerRename asks for a new name; the next text message answers it
+// (ContainerRenameText). Back cancels.
+func (h *Handler) ContainerRename(c Ctx) error {
+	index, cont, ok, err := h.cachedContainer(c)
+	if !ok {
+		return err
 	}
-	userID := ctx.Chat().ID
-	currentContainerIndex := ctx.Data()
-	session := h.session.Get(userID)
-	index, err := strconv.Atoi(currentContainerIndex)
-	if err != nil {
-		log.Gl.Error(err.Error())
-		return ctx.Send("wrong button clicked!")
-	}
-	containers := session.GetContainers()
-	current := containers[index]
-	session.SetScene(entities.SceneRenameContainer)
-	session.SetCurrentContainer(current)
-
-	return ctx.Edit(
-		msgs.ContainerNewNameInput,
-		keyboards.ContainerBack(index),
-		telebot.ModeMarkdownV2,
-	)
+	c.Enter(SceneRenameContainer, QNewContainerName)
+	c.State().CurrentContainer = cont
+	_ = c.Respond()
+	return c.CleanEdit(c.GetL8d(msgs.ContainerNewName, "name", cont.Name), keyboards.ContainerBack(c, index))
 }
 
-func (h *handler) ContainerRenameTextHandler(ctx telebot.Context) error {
-	userID := ctx.Chat().ID
-	session := h.session.Get(userID)
-	container := session.GetCurrentContainer()
-	if container == nil {
-		return ctx.Edit(
-			"you're lost!, please /start again",
-			keyboards.ContainerBack(0),
-			telebot.ModeMarkdownV2,
+// ContainerRenameText renames the container to the text the user sent.
+// On failure the scene stays active so they can send another name; on
+// success it ends, so later messages are not taken as names.
+func (h *Handler) ContainerRenameText(c Ctx) error {
+	cont := c.State().CurrentContainer
+	if cont == nil {
+		c.ResetScene()
+		return h.Start(c)
+	}
+	newName := strings.TrimSpace(c.Text())
+
+	ctx, cancel := h.dockerCtx()
+	defer cancel()
+	if err := h.docker.ContainerRename(ctx, cont.ID, newName); err != nil {
+		c.Logger().Warn("rename failed", "container", cont.Name, "err", err)
+		return c.CleanSend(
+			c.GetL8d(msgs.ContainerRenameErr, "name", cont.Name, "error", err.Error()),
+			keyboards.ContainerBack(c, h.containerIndex(c, cont.ID)),
 		)
 	}
 
-	newName := ctx.Text()
-	if err := h.docker.ContainerRename(context.TODO(), container.ID, newName); err != nil {
-		log.Gl.Error(err.Error())
-		return ctx.Edit(
-			"we cannot rename this container",
-			keyboards.ContainerBack(0),
-			telebot.ModeMarkdownV2,
-		)
+	c.ResetScene()
+	c.State().CurrentContainer = nil
+	containers, err := h.docker.ContainersList(ctx, filters.Args{})
+	if err != nil {
+		return dockerUnavailable(c, err)
 	}
+	c.State().Containers = containers
+	index := 0
+	for i, x := range containers {
+		if x.ID == cont.ID {
+			index = i
+			break
+		}
+	}
+	if len(containers) == 0 {
+		return c.SendL8d(msgs.NoContainers)
+	}
+	done := c.GetL8d(msgs.ContainerRenamed, "old", cont.Name, "new", newName)
+	return showContainer(c, index, containers[index], done)
+}
 
-	containers, _ := h.docker.ContainersList(context.TODO(), filters.Args{})
-	session.SetContainers(containers)
-
-	return ctx.Send(
-		msgs.FmtContainerRenamed(container.Name, newName),
-		keyboards.ContainerBack(0),
-		telebot.ModeMarkdownV2,
-	)
+// containerIndex finds a container in the cached list (0 if absent).
+func (h *Handler) containerIndex(c Ctx, id string) int {
+	for i, x := range c.State().Containers {
+		if x.ID == id {
+			return i
+		}
+	}
+	return 0
 }

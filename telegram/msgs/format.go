@@ -6,81 +6,76 @@ import (
 
 	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/tools"
+	"github.com/arshamalh/tbb"
 )
 
-// Monospace font is enabled by ` charater that is not supported in Go multiline string literals
-// So we should format it using ” and replacing them.
-// characters ()_-.>=< are also reserved by telegram and we will replace them with their escaped ones.
-func FmtMono(input string) string {
-	return strings.NewReplacer(
-		"''", "`",
-		"(", "\\(",
-		")", "\\)",
-		"_", "\\_",
-		".", "\\.",
-		"-", "\\-",
-		"=", "\\=",
-		"<", "\\<",
-		">", "\\>",
-	).Replace(input)
+// ContainerArgs returns the template values of the Container message.
+func ContainerArgs(c *entities.Container) []string {
+	return []string{
+		"name", c.Name,
+		"image", c.Image,
+		"state", string(c.State),
+		"status", c.Status,
+	}
 }
 
-func FmtContainer(container *entities.Container) string {
-	response := strings.NewReplacer(
-		"{name}", container.Name,
-		"{image}", container.Image,
-		"{status}", container.Status,
-	).Replace(Container)
-	response = FmtMono(response)
-	return response
+// ShortImageID turns "sha256:863dd03b5190…1236" into "863dd03b5190", the
+// form `docker images` shows.
+func ShortImageID(id string) string {
+	id = strings.TrimPrefix(id, "sha256:")
+	if len(id) > 12 {
+		return id[:12]
+	}
+	return id
 }
 
-func FmtImage(image *entities.Image) string {
-	// In docker the result of `docker image -q` give us
-	// images ids with 12 characters long
-	imageIDTrimmed := strings.TrimPrefix(image.ID, "sha256:")
-	imageIDPart1 := imageIDTrimmed[0:12]
-	imageIDPart2 := imageIDTrimmed[len(imageIDTrimmed)-4:]
-	response := strings.NewReplacer(
-		"{id1}", imageIDPart1,
-		"{id2}", imageIDPart2,
-		"{size}", tools.SizeToHumanReadable(image.Size),
-		"{tags}", fmt.Sprint(image.Tags),
-		"{status}", fmt.Sprint(image.Status),
-		"{created_at}", fmt.Sprint(image.CreatedAt),
-	).Replace(Image)
-	response = FmtMono(response)
-	return response
+// ImageArgs returns the template values of the Image message.
+func ImageArgs(img *entities.Image) []string {
+	tags := "<none>"
+	if len(img.Tags) > 0 {
+		tags = strings.Join(img.Tags, ", ")
+	}
+	return []string{
+		"id", ShortImageID(img.ID),
+		"size", tools.SizeToHumanReadable(img.Size),
+		"tags", tags,
+		"status", string(img.Status),
+		"created", img.CreatedAt,
+	}
 }
 
-func FmtStats(stat entities.Stats) string {
-	cpu_usage := stat.CPUUsage()
-	memory_usage_percent := stat.MemoryUsage()
-	response := strings.NewReplacer(
-		"{cpu_usage}", fmt.Sprintf("%.2f", cpu_usage),
-		"{online_cpus}", fmt.Sprint(stat.CPU.OnlineCPUs),
-		"{memory_usage}", tools.SizeToHumanReadable(stat.Memory.Usage),
-		"{memory_usage%}", fmt.Sprintf("%.2f", memory_usage_percent),
-		"{available_memory}", tools.SizeToHumanReadable(stat.Memory.Limit),
-	).Replace(Stat)
-	response = FmtMono(response)
-	return response
+// Stats renders a stats sample as MarkdownV2. It is built here rather than
+// through a template because it is rendered by a background stream, outside
+// any handler context.
+func Stats(name string, s entities.Stats) string {
+	rows := [][2]string{
+		{"CPU usage:   ", fmt.Sprintf("%.2f %%", s.CPUUsage())},
+		{"Online CPUs: ", fmt.Sprint(s.CPU.OnlineCPUs)},
+		{"Memory:      ", fmt.Sprintf("%s (%.2f %%)", tools.SizeToHumanReadable(s.Memory.Usage), s.MemoryUsage())},
+		{"Mem limit:   ", tools.SizeToHumanReadable(s.Memory.Limit)},
+	}
+	var b strings.Builder
+	b.WriteString("📊 *" + tbb.EscapeMarkdownV2(name) + "*\n")
+	for _, r := range rows {
+		b.WriteString("`" + r[0] + "` " + tbb.EscapeMarkdownV2(r[1]) + "\n")
+	}
+	return strings.TrimSuffix(b.String(), "\n")
 }
 
-func FmtContainerRenamed(old_name, new_name string) string {
-	response := strings.NewReplacer(
-		"{old_name}", old_name,
-		"{new_name}", new_name,
-	).Replace(ContainerRenamed)
-	response = FmtMono(response)
-	return response
-}
+// maxLogChars keeps log messages under Telegram's 4096-character limit,
+// leaving room for the header and the code fence.
+const maxLogChars = 3500
 
-func FmtImageTagged(id, tag string) string {
-	response := strings.NewReplacer(
-		"{id}", id,
-		"{tag}", tag,
-	).Replace(ImageTagged)
-	response = FmtMono(response)
-	return response
+// Logs renders the last log lines as a MarkdownV2 pre block. Only '`' and '\'
+// need escaping inside it; anything else would show up as literal
+// backslashes.
+func Logs(name string, lines []string) string {
+	body := strings.Join(lines, "\n")
+	if len(body) > maxLogChars {
+		body = "…" + body[len(body)-maxLogChars:]
+	}
+	if strings.TrimSpace(body) == "" {
+		body = "(no output yet)"
+	}
+	return "🪵 *" + tbb.EscapeMarkdownV2(name) + "*\n```\n" + tbb.EscapeMarkdownV2Code(body) + "\n```"
 }

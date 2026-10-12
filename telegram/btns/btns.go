@@ -1,45 +1,38 @@
+// Package btns declares the unique keys of every inline button. The same key
+// builds the button (keyboards) and routes its presses (handlers), so the two
+// can't drift apart. Changing a value breaks buttons on messages already sent.
 package btns
 
-type BtnKey string
-
-// Turns button unique to a pair of (`\f` + button string value) so it can accessible for handlers.
-func (bk BtnKey) Key() string {
-	return "\f" + string(bk)
-}
-
-// Turns button unique directly to its string value without any extra information attached.
-func (bk BtnKey) String() string {
-	return string(bk)
-}
+import "github.com/arshamalh/tbb"
 
 const (
+	// Main menu
+	Containers tbb.BtnKey = "conts"
+	Images     tbb.BtnKey = "imgs"
+
 	// Containers
-	Containers       BtnKey = "conts"
-	ContPrev         BtnKey = "contPrev"
-	ContNext         BtnKey = "contNext"
-	ContBack         BtnKey = "contBack"
-	ContLogs         BtnKey = "contLogs"
-	ContStop         BtnKey = "contStop"
-	ContStart        BtnKey = "contStart"
-	ContStats        BtnKey = "contStats"
-	ContRename       BtnKey = "contRename"
-	ContRemoveForm   BtnKey = "contRmForm"
-	ContRemoveForce  BtnKey = "contFcRm"
-	ContRemoveVolume BtnKey = "contRmVol"
-	ContRemoveDone   BtnKey = "contRmDone"
-	ContPause        BtnKey = "contPause"
-	ContUnpause      BtnKey = "contUnpause"
+	ContPrev         tbb.BtnKey = "contPrev"
+	ContNext         tbb.BtnKey = "contNext"
+	ContBack         tbb.BtnKey = "contBack"
+	ContLogs         tbb.BtnKey = "contLogs"
+	ContStop         tbb.BtnKey = "contStop"
+	ContStart        tbb.BtnKey = "contStart"
+	ContStats        tbb.BtnKey = "contStats"
+	ContRename       tbb.BtnKey = "contRename"
+	ContRemoveForm   tbb.BtnKey = "contRmForm"
+	ContRemoveForce  tbb.BtnKey = "contFcRm"
+	ContRemoveVolume tbb.BtnKey = "contRmVol"
+	ContRemoveDone   tbb.BtnKey = "contRmDone"
+	ContPause        tbb.BtnKey = "contPause"
+	ContUnpause      tbb.BtnKey = "contUnpause"
 
 	// Images
-	Images     BtnKey = "imgs"
-	ImgPrev    BtnKey = "imgPrev"
-	ImgNext    BtnKey = "imgNext"
-	ImgBack    BtnKey = "imgBack"
-	ImgRun     BtnKey = "imgRun"
-	ImgRmForm  BtnKey = "imgRmForm"
-	ImgRmForce BtnKey = "imgRmFc"
-	// ImageRemovePruneChildren
-	ImgRmPruneCh BtnKey = "imgPnCh"
-	ImgRmDone    BtnKey = "imgRmDone"
-	ImgTag       BtnKey = "imgTag"
+	ImgPrev      tbb.BtnKey = "imgPrev"
+	ImgNext      tbb.BtnKey = "imgNext"
+	ImgBack      tbb.BtnKey = "imgBack"
+	ImgRmForm    tbb.BtnKey = "imgRmForm"
+	ImgRmForce   tbb.BtnKey = "imgRmFc"
+	ImgRmPruneCh tbb.BtnKey = "imgPnCh" // prune children
+	ImgRmDone    tbb.BtnKey = "imgRmDone"
+	ImgTag       tbb.BtnKey = "imgTag"
 )

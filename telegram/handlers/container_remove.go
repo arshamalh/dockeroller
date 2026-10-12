@@ -1,110 +1,76 @@
 package handlers
 
 import (
-	"context"
-	"strconv"
-
-	"github.com/arshamalh/dockeroller/log"
+	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/telegram/keyboards"
 	"github.com/arshamalh/dockeroller/telegram/msgs"
-	"github.com/docker/docker/api/types/filters"
-	"gopkg.in/telebot.v3"
 )
 
-// This handler doesn't remove the container,
-// it's just a form for setting the options of removing a container in the later "Done" step.
-func (h *handler) ContainerRemoveForm(ctx telebot.Context) error {
-	ctx.Respond(msgs.FillTheFormAndPressDone)
-	userID := ctx.Chat().ID
-	index, err := strconv.Atoi(ctx.Data())
-	session := h.session.Get(userID)
-	if err != nil {
-		log.Gl.Error(err.Error())
+// ContainerRemoveForm doesn't remove anything: it shows the options (force,
+// remove volumes), reset to false for every container, and waits for Done.
+//
+// The cached list is deliberately not refreshed while the form is open, so
+// toggling an option can't swap the container under the user's finger.
+func (h *Handler) ContainerRemoveForm(c Ctx) error {
+	index, cont, ok, err := h.cachedContainer(c)
+	if !ok {
+		return err
 	}
-	current := session.GetContainer(index)
-	cRemoveForm := session.GetContainerRemoveForm()
-	if cRemoveForm == nil {
-		cRemoveForm = session.SetContainerRemoveForm(false, false)
-	}
-
-	return ctx.Edit(
-		msgs.FmtContainer(current),
-		keyboards.ContainerRemove(index, cRemoveForm.Force, cRemoveForm.RemoveVolumes),
-		telebot.ModeMarkdownV2,
-	)
+	c.State().ContainerRemove = entities.ContainerRemoveForm{}
+	_ = c.RespondL8d(msgs.ToastFillFormPressDone)
+	return h.showContainerRemoveForm(c, index, cont)
 }
 
-// Removes the container with specified options
-func (h *handler) ContainerRemoveDone(ctx telebot.Context) error {
-	userID := ctx.Chat().ID
-	index, err := strconv.Atoi(ctx.Data())
-	session := h.session.Get(userID)
+func (h *Handler) showContainerRemoveForm(c Ctx, index int, cont *entities.Container) error {
+	text := c.GetL8d(msgs.RemoveFormHint) + "\n\n" + c.GetL8d(msgs.Container, msgs.ContainerArgs(cont)...)
+	return c.CleanEdit(text, keyboards.ContainerRemove(c, index, c.State().ContainerRemove))
+}
+
+func (h *Handler) ContainerRemoveForce(c Ctx) error {
+	index, cont, ok, err := h.cachedContainer(c)
+	if !ok {
+		return err
+	}
+	form := &c.State().ContainerRemove
+	form.Force = !form.Force
+	_ = c.Respond()
+	return h.showContainerRemoveForm(c, index, cont)
+}
+
+func (h *Handler) ContainerRemoveVolumes(c Ctx) error {
+	index, cont, ok, err := h.cachedContainer(c)
+	if !ok {
+		return err
+	}
+	form := &c.State().ContainerRemove
+	form.RemoveVolumes = !form.RemoveVolumes
+	_ = c.Respond()
+	return h.showContainerRemoveForm(c, index, cont)
+}
+
+// ContainerRemoveDone removes the container with the chosen options, then
+// shows the (refreshed) first container.
+func (h *Handler) ContainerRemoveDone(c Ctx) error {
+	_, cont, ok, err := h.cachedContainer(c)
+	if !ok {
+		return err
+	}
+	form := c.State().ContainerRemove
+	ctx, cancel := h.dockerCtx()
+	defer cancel()
+	if err := h.docker.ContainerRemove(ctx, cont.ID, &form); err != nil {
+		c.Logger().Warn("remove failed", "container", cont.Name, "err", err)
+		return respondErr(c, err)
+	}
+	c.State().ContainerRemove = entities.ContainerRemoveForm{}
+	_ = c.RespondL8d(msgs.ToastContainerRemoved)
+
+	containers, err := h.refreshContainers(c)
 	if err != nil {
-		log.Gl.Error(err.Error())
+		return dockerUnavailable(c, err)
 	}
-	current := session.GetContainer(index)
-	cRemoveForm := session.GetContainerRemoveForm()
-
-	if err := h.docker.ContainerRemove(context.TODO(), current.ID, cRemoveForm); err != nil {
-		log.Gl.Error(err.Error())
-		return ctx.Respond(msgs.UnableToRemoveContainer)
-	}
-
-	ctx.Respond(msgs.ContainerRemovedSuccessfully)
-
-	containers, _ := h.docker.ContainersList(context.TODO(), filters.Args{})
-	session.SetContainers(containers)
 	if len(containers) == 0 {
-		// TODO: if container removed and there is no container, get back to the start menu, no extra action needed
-		return ctx.Send("there is no container")
+		return c.CleanEdit(c.GetL8d(msgs.NoContainers), keyboards.Welcome(c))
 	}
-	current = containers[0]
-
-	return ctx.Edit(
-		msgs.FmtContainer(current),
-		keyboards.ContainersList(0, current.IsOn()),
-		telebot.ModeMarkdownV2,
-	)
-}
-
-func (h *handler) ContainerRemoveForce(ctx telebot.Context) error {
-	userID := ctx.Chat().ID
-	index, err := strconv.Atoi(ctx.Data())
-	session := h.session.Get(userID)
-	if err != nil {
-		log.Gl.Error(err.Error())
-		return ctx.Respond(msgs.InvalidButton)
-	}
-
-	current := session.GetContainer(index)
-	cRemoveForm := session.GetContainerRemoveForm()
-	cRemoveForm.Force = !cRemoveForm.Force
-	session.SetContainerRemoveForm(cRemoveForm.Force, cRemoveForm.RemoveVolumes)
-
-	return ctx.Edit(
-		msgs.FmtContainer(current),
-		keyboards.ContainerRemove(index, cRemoveForm.Force, cRemoveForm.RemoveVolumes),
-		telebot.ModeMarkdownV2,
-	)
-}
-
-func (h *handler) ContainerRemoveVolumes(ctx telebot.Context) error {
-	userID := ctx.Chat().ID
-	session := h.session.Get(userID)
-	index, err := strconv.Atoi(ctx.Data())
-	if err != nil {
-		log.Gl.Error(err.Error())
-		return ctx.Respond(msgs.InvalidButton)
-	}
-
-	current := session.GetContainer(index)
-	cRemoveForm := session.GetContainerRemoveForm()
-	cRemoveForm.RemoveVolumes = !cRemoveForm.RemoveVolumes
-	session.SetContainerRemoveForm(cRemoveForm.Force, cRemoveForm.RemoveVolumes)
-
-	return ctx.Edit(
-		msgs.FmtContainer(current),
-		keyboards.ContainerRemove(index, cRemoveForm.Force, cRemoveForm.RemoveVolumes),
-		telebot.ModeMarkdownV2,
-	)
+	return showContainer(c, 0, containers[0], "")
 }
