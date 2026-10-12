@@ -51,8 +51,8 @@ func Stats(name string, s entities.Stats) string {
 	rows := [][2]string{
 		{"CPU usage:   ", fmt.Sprintf("%.2f %%", s.CPUUsage())},
 		{"Online CPUs: ", fmt.Sprint(s.CPU.OnlineCPUs)},
-		{"Memory:      ", fmt.Sprintf("%s (%.2f %%)", tools.SizeToHumanReadable(s.Memory.Usage), s.MemoryUsage())},
-		{"Mem limit:   ", tools.SizeToHumanReadable(s.Memory.Limit)},
+		{"Memory:      ", fmt.Sprintf("%s (%.2f %%)", tools.SizeToHumanReadable(int64(s.UsedMemory())), s.MemoryUsage())},
+		{"Mem limit:   ", tools.SizeToHumanReadable(int64(s.Memory.Limit))},
 	}
 	var b strings.Builder
 	b.WriteString("📊 *" + tbb.EscapeMarkdownV2(name) + "*\n")
