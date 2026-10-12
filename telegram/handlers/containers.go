@@ -123,8 +123,27 @@ func (h *Handler) ContainerBack(c Ctx) error {
 	if !ok {
 		return err
 	}
+	ctx, cancel := h.dockerCtx()
+	defer cancel()
+	cont = h.reload(ctx, c, index, cont)
 	_ = c.Respond()
 	return showContainer(c, index, cont, "")
+}
+
+// reload re-reads one container and updates the cached list, so the view
+// shows its current state ("Up 2 minutes", not the status cached when the
+// list was loaded). On failure the cached copy is kept.
+func (h *Handler) reload(ctx context.Context, c Ctx, index int, cont *entities.Container) *entities.Container {
+	// The list endpoint, unlike inspect, gives the familiar status text
+	// ("Up 2 seconds", "Exited (0) …").
+	fresh, err := h.docker.ContainersList(ctx, filters.NewArgs(filters.Arg("id", cont.ID)))
+	if err != nil || len(fresh) != 1 {
+		return cont
+	}
+	if cached := c.State().Containers; index < len(cached) {
+		cached[index] = fresh[0]
+	}
+	return fresh[0]
 }
 
 // containerAction runs a lifecycle action, then re-reads the container so
@@ -140,12 +159,7 @@ func (h *Handler) containerAction(c Ctx, toast string, action func(ctx context.C
 		c.Logger().Warn("container action failed", "container", cont.Name, "err", err)
 		return respondErr(c, err)
 	}
-	// Re-list just this container: unlike inspect, the list gives the
-	// familiar status text ("Up 2 seconds", "Exited (0) …").
-	if fresh, err := h.docker.ContainersList(ctx, filters.NewArgs(filters.Arg("id", cont.ID))); err == nil && len(fresh) == 1 {
-		cont = fresh[0]
-		c.State().Containers[index] = cont
-	}
+	cont = h.reload(ctx, c, index, cont)
 	_ = c.RespondL8d(toast)
 	return showContainer(c, index, cont, "")
 }
