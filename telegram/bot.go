@@ -24,17 +24,39 @@ type Bot struct {
 	Handlers *handlers.Handler
 }
 
+// Option customizes New.
+type Option func(*options)
+
+type options struct {
+	app      []tbb.AppOption[handlers.State]
+	handlers []handlers.Option
+}
+
+// WithAppOptions passes options to tbb.New (store, telebot settings, ...).
+func WithAppOptions(opts ...tbb.AppOption[handlers.State]) Option {
+	return func(o *options) { o.app = append(o.app, opts...) }
+}
+
+// WithHandlerOptions passes options to handlers.Register.
+func WithHandlerOptions(opts ...handlers.Option) Option {
+	return func(o *options) { o.handlers = append(o.handlers, opts...) }
+}
+
 // New builds the bot. Only chats in whitelist may use it.
-func New(cfg tbb.Config, d docker.Docker, whitelist []int64, logger *slog.Logger, opts ...tbb.AppOption[handlers.State]) (*Bot, error) {
-	opts = append([]tbb.AppOption[handlers.State]{tbb.WithLogger[handlers.State](logger)}, opts...)
-	app, err := tbb.New[handlers.State](cfg, opts...)
+func New(cfg tbb.Config, d docker.Docker, whitelist []int64, logger *slog.Logger, opts ...Option) (*Bot, error) {
+	var o options
+	for _, opt := range opts {
+		opt(&o)
+	}
+	appOpts := append([]tbb.AppOption[handlers.State]{tbb.WithLogger[handlers.State](logger)}, o.app...)
+	app, err := tbb.New[handlers.State](cfg, appOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("create bot: %w", err)
 	}
 	app.I18n().Register("en", "", msgs.EN)
 	app.Use(Whitelist(whitelist))
 
-	h := handlers.Register(app, d)
+	h := handlers.Register(app, d, o.handlers...)
 	if err := app.Bot().SetCommands(Commands); err != nil {
 		logger.Warn("set bot commands", "err", err)
 	}
