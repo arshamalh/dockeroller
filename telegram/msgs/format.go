@@ -3,6 +3,7 @@ package msgs
 import (
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/arshamalh/dockeroller/entities"
 	"github.com/arshamalh/dockeroller/tools"
@@ -66,13 +67,27 @@ func Stats(name string, s entities.Stats) string {
 // leaving room for the header and the code fence.
 const maxLogChars = 3500
 
+// tail returns the end of s, at most max bytes long. It starts at a line
+// boundary when one is close, and never in the middle of a UTF-8 character
+// (Telegram rejects invalid UTF-8).
+func tail(s string, max int) string {
+	start := len(s) - max
+	for start < len(s) && !utf8.RuneStart(s[start]) {
+		start++
+	}
+	if nl := strings.IndexByte(s[start:], '\n'); nl >= 0 && nl < 200 {
+		start += nl + 1
+	}
+	return s[start:]
+}
+
 // Logs renders the last log lines as a MarkdownV2 pre block. Only '`' and '\'
 // need escaping inside it; anything else would show up as literal
 // backslashes.
 func Logs(name string, lines []string) string {
 	body := strings.Join(lines, "\n")
 	if len(body) > maxLogChars {
-		body = "…" + body[len(body)-maxLogChars:]
+		body = "…" + tail(body, maxLogChars)
 	}
 	if strings.TrimSpace(body) == "" {
 		body = "(no output yet)"
