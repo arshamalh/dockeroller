@@ -3,7 +3,7 @@ module github.com/arshamalh/dockeroller
 go 1.25.0
 
 require (
-	github.com/arshamalh/tbb v0.0.0-20261012025818-20ae276158c3
+	github.com/arshamalh/tbb v0.0.0-20261012155146-f0dfc68cab07
 	github.com/docker/docker v28.5.1+incompatible
 	github.com/joho/godotenv v1.5.1
 )
